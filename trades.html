@@ -303,6 +303,8 @@ table.trades { width:100%; border-collapse:collapse; font-family:var(--font-mono
   (function ethPriceLive() {
     let last = null;
     const sources = [
+      { name:'HTX',       url:'https://api.htx.com/market/detail/merged?symbol=ethusdt', parse:d => parseFloat(d.tick.close) },
+      { name:'GateIO',    url:'https://api.gateio.ws/api/v4/spot/tickers?currency_pair=ETH_USDT', parse:d => parseFloat(d[0].last) },
       { name:'OKX',       url:'https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT', parse:d => parseFloat(d.data[0].last) },
       { name:'CoinGecko', url:'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd', parse:d => parseFloat(d.ethereum.usd) },
       { name:'Coinbase',  url:'https://api.coinbase.com/v2/prices/ETH-USD/spot', parse:d => parseFloat(d.data.amount) },

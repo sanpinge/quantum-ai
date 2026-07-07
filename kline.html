@@ -238,6 +238,10 @@
 
     // Fetch OKX 15m klines (public, CORS-friendly, not geo-blocked for user)
     const sources = [
+      { name: 'HTX', url: 'https://api.htx.com/market/history/kline?symbol=ethusdt&period=15min&size=100',
+        parse: d => (d.data||[]).map(r => ({ time: +r.id, open:+r.open, high:+r.high, low:+r.low, close:+r.close })).reverse() },
+      { name: 'GateIO', url: 'https://api.gateio.ws/api/v4/spot/candlesticks?currency_pair=ETH_USDT&interval=15m&limit=100',
+        parse: d => (d||[]).map(r => ({ time: +r[0], open:+r[5], high:+r[3], low:+r[4], close:+r[2] })) },
       { name: 'OKX', url: 'https://www.okx.com/api/v5/market/candles?instId=ETH-USDT&bar=15m&limit=100',
         parse: d => (d.data||[]).map(r => ({ time: Math.floor(parseInt(r[0])/1000), open:+r[1], high:+r[2], low:+r[3], close:+r[4] })).reverse() },
       { name: 'CoinGecko', url: 'https://api.coingecko.com/api/v3/coins/ethereum/ohlc?vs_currency=usd&days=1',
@@ -321,6 +325,8 @@
   (function ethPriceLive() {
     let last = null;
     const sources = [
+      { name:'HTX',       url:'https://api.htx.com/market/detail/merged?symbol=ethusdt', parse:d => parseFloat(d.tick.close) },
+      { name:'GateIO',    url:'https://api.gateio.ws/api/v4/spot/tickers?currency_pair=ETH_USDT', parse:d => parseFloat(d[0].last) },
       { name:'OKX',       url:'https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT', parse:d => parseFloat(d.data[0].last) },
       { name:'CoinGecko', url:'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd', parse:d => parseFloat(d.ethereum.usd) },
       { name:'Coinbase',  url:'https://api.coinbase.com/v2/prices/ETH-USD/spot', parse:d => parseFloat(d.data.amount) },

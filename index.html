@@ -226,6 +226,9 @@
   .pool-item .label { display: inline-block; margin-bottom: 0; }
   .pool-item .num-big { display: inline-block; font-size: 22px; }
   .pool-item .caption { display: none; }
+  .agent-panel::before { display: none; }
+  .agent-name { font-size: 12.5px; }
+  .agent-status { font-size: 10.5px; }
   .agent-stats { grid-template-columns: 1fr; font-size: 11.5px; }
   .feed-line { grid-template-columns: 50px auto 1fr; gap: 8px; font-size: 11.5px; padding: 7px 0; }
   .feed-line .t { font-size: 10px; }
@@ -488,6 +491,8 @@
   (function ethPriceLive() {
     let last = null;
     const sources = [
+      { name:'HTX',       url:'https://api.htx.com/market/detail/merged?symbol=ethusdt', parse:d => parseFloat(d.tick.close) },
+      { name:'GateIO',    url:'https://api.gateio.ws/api/v4/spot/tickers?currency_pair=ETH_USDT', parse:d => parseFloat(d[0].last) },
       { name:'OKX',       url:'https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT', parse:d => parseFloat(d.data[0].last) },
       { name:'CoinGecko', url:'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd', parse:d => parseFloat(d.ethereum.usd) },
       { name:'Coinbase',  url:'https://api.coinbase.com/v2/prices/ETH-USD/spot', parse:d => parseFloat(d.data.amount) },

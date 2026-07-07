@@ -119,14 +119,7 @@ table.trades { width:100%; border-collapse:collapse; font-family:var(--font-mono
     </div>
     <div class="top-meta">
       <div class="lang-switcher"></div>
-      <div class="tv-ticker">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embed/widget-single-quote.js" async>
-          {"symbol":"BINANCE:ETHUSDT","width":"200","height":"70","colorTheme":"dark","isTransparent":true,"locale":"en"}
-          </script>
-        </div>
-      </div>
+      <span class="eth-price" id="ethPrice"><span class="lbl">ETH</span><span id="ethPriceVal">$----</span><span class="arrow" id="ethArrow"></span></span>
       <span class="live-badge"><span class="dot"></span>LIVE</span>
       <span id="clock">--:--</span>
     </div>
@@ -305,5 +298,49 @@ table.trades { width:100%; border-collapse:collapse; font-family:var(--font-mono
   });
 </script>
 <script src="i18n.js"></script>
+
+<script>
+  (function ethPriceLive() {
+    let last = null;
+    const sources = [
+      { name:'OKX',       url:'https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT', parse:d => parseFloat(d.data[0].last) },
+      { name:'CoinGecko', url:'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd', parse:d => parseFloat(d.ethereum.usd) },
+      { name:'Coinbase',  url:'https://api.coinbase.com/v2/prices/ETH-USD/spot', parse:d => parseFloat(d.data.amount) },
+    ];
+    async function tick() {
+      const el = document.getElementById('ethPrice');
+      const val = document.getElementById('ethPriceVal');
+      const arrow = document.getElementById('ethArrow');
+      if (!el || !val) return;
+      let p = null;
+      for (const s of sources) {
+        try {
+          const r = await fetch(s.url);
+          if (!r.ok) continue;
+          const j = await r.json();
+          const parsed = s.parse(j);
+          if (parsed && !isNaN(parsed) && parsed > 0) { p = parsed; break; }
+        } catch(e) {}
+      }
+      if (p === null) { val.textContent = '$--'; return; }
+      val.textContent = '$' + p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      if (last !== null) {
+        const d = p - last;
+        if (Math.abs(d) >= 0.01) {
+          el.classList.remove('flash-up','flash-down','up','down');
+          void el.offsetWidth;
+          if (d > 0) { el.classList.add('up','flash-up'); arrow.textContent = '▲'; }
+          else       { el.classList.add('down','flash-down'); arrow.textContent = '▼'; }
+        }
+      } else {
+        el.classList.add('up'); arrow.textContent = '▲';
+      }
+      last = p;
+    }
+    tick();
+    setInterval(tick, 10000);
+  })();
+</script>
+
 </body>
 </html>

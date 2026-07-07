@@ -11,6 +11,27 @@
 .kline-wrap { height: 500px; position:relative; margin-top:6px; background: rgba(6,12,20,0.4); border: 1px solid var(--border); border-radius: 4px; overflow:hidden; }
 .chart-loading { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:12px; color:var(--text-dim); letter-spacing:0.1em; z-index:2; pointer-events:none; }
 .chart-loading.hidden { display:none; }
+.demo-watermark {
+  position:absolute; top:50%; left:50%; transform: translate(-50%, -50%) rotate(-18deg);
+  font-family: var(--font-mono); font-size: 88px; font-weight: 800;
+  color: rgba(245,185,66,0.06);
+  letter-spacing: 0.28em;
+  z-index: 1; pointer-events: none; user-select: none;
+  white-space: nowrap;
+}
+.demo-note {
+  padding: 3px 10px;
+  background: rgba(245,185,66,0.12);
+  border: 1px solid rgba(245,185,66,0.4);
+  color: #f5b942 !important;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  border-radius: 3px;
+}
+@media (max-width: 600px) {
+  .demo-watermark { font-size: 56px; }
+}
 .kline-legend { display:flex; gap:20px; margin-top:12px; font-family:var(--font-mono); font-size:10.5px; color:var(--text-muted); letter-spacing:0.06em; flex-wrap:wrap; }
 .kline-legend .swatch { display:inline-block; width:8px; height:8px; margin-right:6px; vertical-align:middle; }
 
@@ -96,14 +117,7 @@
     </div>
     <div class="top-meta">
       <div class="lang-switcher"></div>
-      <div class="tv-ticker">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embed/widget-single-quote.js" async>
-          {"symbol":"BINANCE:ETHUSDT","width":"200","height":"70","colorTheme":"dark","isTransparent":true,"locale":"en"}
-          </script>
-        </div>
-      </div>
+      <span class="eth-price" id="ethPrice"><span class="lbl">ETH</span><span id="ethPriceVal">$----</span><span class="arrow" id="ethArrow"></span></span>
       <span class="live-badge"><span class="dot"></span>LIVE</span>
       <span id="clock">--:--</span>
     </div>
@@ -114,11 +128,12 @@
     <div class="card kline-card">
       <div class="sec-head">
         <h2 data-i18n="kline.title">ETH-USDT · 15m · Agent 交易标记</h2>
-        <span class="note">最近 30 根 · 自主决策</span>
+        <span class="note demo-note" data-i18n="kline.demo">示例信号 · 仅供演示</span>
       </div>
       <div class="kline-wrap">
         <div id="lwChart" style="width:100%; height:100%;"></div>
         <div id="chartLoading" class="chart-loading">加载 K 线数据…</div>
+        <div class="demo-watermark">DEMO</div>
       </div>
       <div class="kline-legend">
         <span><span class="swatch" style="background:#22c55e"></span>Agent 开多</span>
@@ -301,5 +316,49 @@
     }).observe(container);
   })();
 </script>
+
+<script>
+  (function ethPriceLive() {
+    let last = null;
+    const sources = [
+      { name:'OKX',       url:'https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT', parse:d => parseFloat(d.data[0].last) },
+      { name:'CoinGecko', url:'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd', parse:d => parseFloat(d.ethereum.usd) },
+      { name:'Coinbase',  url:'https://api.coinbase.com/v2/prices/ETH-USD/spot', parse:d => parseFloat(d.data.amount) },
+    ];
+    async function tick() {
+      const el = document.getElementById('ethPrice');
+      const val = document.getElementById('ethPriceVal');
+      const arrow = document.getElementById('ethArrow');
+      if (!el || !val) return;
+      let p = null;
+      for (const s of sources) {
+        try {
+          const r = await fetch(s.url);
+          if (!r.ok) continue;
+          const j = await r.json();
+          const parsed = s.parse(j);
+          if (parsed && !isNaN(parsed) && parsed > 0) { p = parsed; break; }
+        } catch(e) {}
+      }
+      if (p === null) { val.textContent = '$--'; return; }
+      val.textContent = '$' + p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      if (last !== null) {
+        const d = p - last;
+        if (Math.abs(d) >= 0.01) {
+          el.classList.remove('flash-up','flash-down','up','down');
+          void el.offsetWidth;
+          if (d > 0) { el.classList.add('up','flash-up'); arrow.textContent = '▲'; }
+          else       { el.classList.add('down','flash-down'); arrow.textContent = '▼'; }
+        }
+      } else {
+        el.classList.add('up'); arrow.textContent = '▲';
+      }
+      last = p;
+    }
+    tick();
+    setInterval(tick, 10000);
+  })();
+</script>
+
 </body>
 </html>

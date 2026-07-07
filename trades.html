@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>量子 AI · 交易</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* Stats bar */
+.stats-bar { display:grid; grid-template-columns: repeat(6, 1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-bottom:20px; }
+.stat-item { background: var(--panel); padding: 18px 20px; }
+.stat-item .k { font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
+.stat-item .v { font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:22px; font-weight:500; letter-spacing:-0.01em; }
+.stat-item .v.up { color: var(--up); }
+.stat-item .v.amber { color: var(--accent); }
+
+.trades-layout { display:grid; grid-template-columns: 1fr 340px; gap:20px; margin-bottom:24px; }
+
+/* Filter tabs */
+.filter-row { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+.filter-tab { padding:7px 14px; font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; color:var(--text-muted); border:1px solid var(--border); background:var(--panel-2); cursor:pointer; text-transform:uppercase; }
+.filter-tab:hover, .filter-tab.on { color:var(--tech); border-color:rgba(94,234,212,0.35); background:var(--tech-dim); }
+
+/* Table */
+.trades-card { padding:0; overflow:hidden; }
+.trades-card .head { padding:22px 24px 14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; }
+.trades-card .head h2 { margin:0; font-size:12px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.18em; font-weight:600; }
+.trades-card .head .stat { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); letter-spacing:0.06em; }
+table.trades { width:100%; border-collapse:collapse; font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:12.5px; }
+.trades th { text-align:left; padding:11px 16px; font-size:10px; letter-spacing:0.14em; color:var(--text-dim); font-weight:500; text-transform:uppercase; background:var(--panel-2); border-bottom:1px solid var(--border); }
+.trades th.r { text-align:right; }
+.trades td { padding:11px 16px; border-bottom:1px solid var(--border); color:var(--text); }
+.trades td.r { text-align:right; }
+.trades tr:last-child td { border-bottom:none; }
+.trades .dir { padding:2px 8px; font-size:10.5px; letter-spacing:0.1em; }
+.trades .dir.L { color:var(--up); background:rgba(34,197,94,0.10); }
+.trades .dir.S { color:var(--down); background:rgba(239,68,68,0.10); }
+.trades .pnl.pos { color:var(--up); }
+.trades .pnl.neg { color:var(--down); }
+.trades .reason { color:var(--text-muted); font-size:11px; letter-spacing:0.06em; }
+.trades .strat { color:var(--tech); font-size:11px; letter-spacing:0.06em; }
+
+/* Card version for mobile */
+.trades-mobile { display:none; padding: 12px; }
+.trade-card { background:var(--panel-2); border:1px solid var(--border); padding:14px 16px; margin-bottom:8px; }
+.trade-card:last-child { margin-bottom:0; }
+.trade-card .r1 { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.trade-card .r1 .time { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); }
+.trade-card .r2 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; font-family:var(--font-mono); font-size:12px; }
+.trade-card .r2 .k { color:var(--text-dim); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:3px; }
+.trade-card .r2 .v { font-variant-numeric: tabular-nums; }
+.trade-card .r2 .v.pos { color:var(--up); }
+.trade-card .r2 .v.neg { color:var(--down); }
+
+/* Ledger */
+.ledger-card { padding:0; overflow:hidden; display:flex; flex-direction:column; }
+.ledger-head { padding:22px 24px 14px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; justify-content:space-between; }
+.ledger-head h2 { margin:0; font-size:12px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.18em; font-weight:600; }
+.ledger-head .stat { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); letter-spacing:0.06em; }
+.ledger-viewport { height:640px; overflow:hidden; position:relative; -webkit-mask-image:linear-gradient(180deg, transparent, black 6%, black 94%, transparent); mask-image:linear-gradient(180deg, transparent, black 6%, black 94%, transparent); }
+.ledger-track { display:flex; flex-direction:column; animation: scroll-up 80s linear infinite; }
+@keyframes scroll-up { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+.ledger-viewport:hover .ledger-track { animation-play-state: paused; }
+.ledger-row { display:grid; grid-template-columns: auto 1fr auto; gap:14px; padding:13px 24px; align-items:center; border-bottom:1px dashed var(--border); font-family:var(--font-mono); font-size:12.5px; }
+.ledger-row .addr { color:var(--text-muted); letter-spacing:0.02em; }
+.ledger-row .addr .prefix { color:var(--text-dim); }
+.ledger-row .amt { color:var(--text); font-weight:500; font-variant-numeric: tabular-nums; }
+.ledger-row .amt::after { content:' USDT'; color:var(--text-dim); font-size:10px; letter-spacing:0.06em; margin-left:4px; }
+.ledger-row .t { color:var(--text-dim); font-size:10.5px; letter-spacing:0.05em; }
+.ledger-row .chip { display:inline-block; padding:1px 6px; background:var(--tech-dim); color:var(--tech); font-size:9.5px; letter-spacing:0.1em; margin-right:8px; text-transform:uppercase; }
+
+@media (max-width: 960px) {
+  .stats-bar { grid-template-columns: repeat(3, 1fr); }
+  .stat-item .v { font-size: 18px; }
+  .trades-layout { grid-template-columns: 1fr; }
+  .ledger-viewport { height: 320px; }
+}
+@media (max-width: 600px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .stat-item { padding: 14px 16px; }
+  .stat-item .v { font-size: 17px; }
+  table.trades { display:none; }
+  .trades-mobile { display:block; }
+  .trades-card .head { padding: 18px 16px 12px; }
+  .filter-tab { padding: 6px 12px; font-size: 10.5px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="grid-overlay"></div>
+
+<div class="page">
+
+  <div class="top">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 42 42" fill="none">
+          <circle cx="21" cy="21" r="17" stroke="#f5b942" stroke-width="1.2"/>
+          <circle cx="21" cy="21" r="10" stroke="#5eead4" stroke-width="0.9" opacity="0.7"/>
+          <circle cx="21" cy="21" r="3" fill="#f5b942"/>
+          <line x1="21" y1="4"  x2="21" y2="10" stroke="#5eead4" stroke-width="0.7"/>
+          <line x1="21" y1="32" x2="21" y2="38" stroke="#5eead4" stroke-width="0.7"/>
+          <line x1="4"  y1="21" x2="10" y2="21" stroke="#5eead4" stroke-width="0.7"/>
+          <line x1="32" y1="21" x2="38" y2="21" stroke="#5eead4" stroke-width="0.7"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="name">量子 AI · QUANTUM</div>
+        <div class="sub" data-i18n="brand.sub">AUTONOMOUS TRADING AGENT</div>
+      </div>
+    </div>
+    <div class="top-nav">
+      <a class="nav-item" href="index.html" data-i18n="nav.overview">概览</a>
+      <a class="nav-item" href="kline.html" data-i18n="nav.kline">K 线</a>
+      <a class="nav-item active" href="trades.html" data-i18n="nav.trades">交易</a>
+      <a class="nav-item" href="deposit.html" data-i18n="nav.my">我的</a>
+    </div>
+    <div class="top-meta">
+      <div class="lang-switcher"></div>
+      <span class="live-badge"><span class="dot"></span>LIVE</span>
+      <span id="clock">--:--</span>
+    </div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-item"><div class="k" data-i18n="tr.total">总交易</div><div class="v">218</div></div>
+    <div class="stat-item"><div class="k" data-i18n="tr.winrate">胜率</div><div class="v up">47%</div></div>
+    <div class="stat-item"><div class="k" data-i18n="tr.pf">盈亏比</div><div class="v amber">2.34</div></div>
+    <div class="stat-item"><div class="k" data-i18n="tr.pnl">总盈亏</div><div class="v up">+$93,240</div></div>
+    <div class="stat-item"><div class="k" data-i18n="tr.maxWin">单笔最大盈</div><div class="v up">+$8,470</div></div>
+    <div class="stat-item"><div class="k" data-i18n="tr.maxLoss">单笔最大亏</div><div class="v" style="color:var(--down)">-$580</div></div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter-row">
+    <button class="filter-tab on" data-i18n="tr.all">全部</button>
+    <button class="filter-tab">2026-01</button>
+    <button class="filter-tab">2026-02</button>
+    <button class="filter-tab">2026-03</button>
+    <button class="filter-tab">2026-04</button>
+    <button class="filter-tab">2026-05</button>
+    <button class="filter-tab">2026-06</button>
+    <button class="filter-tab">2026-07</button>
+  </div>
+
+  <div class="trades-layout">
+    <!-- TRADES TABLE -->
+    <div class="card trades-card">
+      <div class="head">
+        <h2 data-i18n="tr.detail">交易明细</h2>
+        <span class="stat">显示 20 笔 · 全部 218</span>
+      </div>
+      <div style="overflow-x:auto">
+      <table class="trades">
+        <thead>
+          <tr>
+            <th>时间</th>
+            <th>策略</th>
+            <th>方向</th>
+            <th class="r">入场</th>
+            <th class="r">出场</th>
+            <th class="r">盈亏</th>
+            <th class="r">类型</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>07-05 15:26</td><td class="strat">策略 3</td><td><span class="dir S">空</span></td><td class="r">1,762.19</td><td class="r">1,769.54</td><td class="r pnl neg">-71.54</td><td class="r reason">SL</td></tr>
+          <tr><td>07-03 09:00</td><td class="strat">策略 2</td><td><span class="dir L">多</span></td><td class="r">1,713.48</td><td class="r">1,762.19</td><td class="r pnl pos">+124.91</td><td class="r reason">REV</td></tr>
+          <tr><td>07-02 03:30</td><td class="strat">策略 5</td><td><span class="dir L">多</span></td><td class="r">1,619.61</td><td class="r">1,609.09</td><td class="r pnl neg">-65.61</td><td class="r reason">SL</td></tr>
+          <tr><td>07-01 10:30</td><td class="strat">策略 4</td><td><span class="dir L">多</span></td><td class="r">1,588.31</td><td class="r">1,571.68</td><td class="r pnl neg">-72.90</td><td class="r reason">SL</td></tr>
+          <tr><td>06-30 01:00</td><td class="strat">策略 3</td><td><span class="dir L">多</span></td><td class="r">1,615.89</td><td class="r">1,572.05</td><td class="r pnl neg">-18.62</td><td class="r reason">SL</td></tr>
+          <tr><td>06-29 22:00</td><td class="strat">策略 3</td><td><span class="dir S">空</span></td><td class="r">1,559.49</td><td class="r">1,586.10</td><td class="r pnl neg">-20.69</td><td class="r reason">SL</td></tr>
+          <tr><td>06-29 13:30</td><td class="strat">策略 1</td><td><span class="dir L">多</span></td><td class="r">1,577.34</td><td class="r">1,559.16</td><td class="r pnl neg">-22.99</td><td class="r reason">SL</td></tr>
+          <tr><td>06-29 11:45</td><td class="strat">策略 3</td><td><span class="dir L">多</span></td><td class="r">1,583.97</td><td class="r">1,574.69</td><td class="r pnl neg">-25.55</td><td class="r reason">SL</td></tr>
+          <tr><td>06-29 09:00</td><td class="strat">策略 1</td><td><span class="dir S">空</span></td><td class="r">1,566.45</td><td class="r">1,576.25</td><td class="r pnl neg">-25.80</td><td class="r reason">SL</td></tr>
+          <tr><td>06-26 21:45</td><td class="strat">策略 1</td><td><span class="dir L">多</span></td><td class="r">1,589.72</td><td class="r">2,041.35</td><td class="r pnl pos">+2,541.57</td><td class="r reason">REV</td></tr>
+          <tr><td>06-25 08:22</td><td class="strat">策略 2</td><td><span class="dir S">空</span></td><td class="r">1,612.44</td><td class="r">1,587.12</td><td class="r pnl pos">+118.36</td><td class="r reason">REV</td></tr>
+          <tr><td>06-22 17:15</td><td class="strat">策略 4</td><td><span class="dir L">多</span></td><td class="r">1,478.28</td><td class="r">1,552.05</td><td class="r pnl pos">+236.10</td><td class="r reason">REV</td></tr>
+          <tr><td>06-19 03:00</td><td class="strat">策略 5</td><td><span class="dir L">多</span></td><td class="r">1,502.15</td><td class="r">1,489.60</td><td class="r pnl neg">-58.13</td><td class="r reason">SL</td></tr>
+          <tr><td>06-15 22:44</td><td class="strat">策略 2</td><td><span class="dir S">空</span></td><td class="r">1,558.09</td><td class="r">1,502.15</td><td class="r pnl pos">+287.72</td><td class="r reason">REV</td></tr>
+          <tr><td>06-11 14:30</td><td class="strat">策略 3</td><td><span class="dir L">多</span></td><td class="r">1,410.24</td><td class="r">1,558.09</td><td class="r pnl pos">+632.44</td><td class="r reason">REV</td></tr>
+          <tr><td>06-08 09:12</td><td class="strat">策略 1</td><td><span class="dir S">空</span></td><td class="r">1,478.55</td><td class="r">1,410.24</td><td class="r pnl pos">+412.05</td><td class="r reason">REV</td></tr>
+          <tr><td>06-04 05:55</td><td class="strat">策略 4</td><td><span class="dir L">多</span></td><td class="r">1,395.12</td><td class="r">1,472.68</td><td class="r pnl pos">+188.66</td><td class="r reason">REV</td></tr>
+          <tr><td>05-31 18:30</td><td class="strat">策略 3</td><td><span class="dir L">多</span></td><td class="r">1,388.20</td><td class="r">1,378.44</td><td class="r pnl neg">-42.33</td><td class="r reason">SL</td></tr>
+          <tr><td>05-28 11:15</td><td class="strat">策略 5</td><td><span class="dir S">空</span></td><td class="r">1,412.99</td><td class="r">1,388.20</td><td class="r pnl pos">+96.15</td><td class="r reason">REV</td></tr>
+          <tr><td>05-24 06:22</td><td class="strat">策略 1</td><td><span class="dir L">多</span></td><td class="r">1,354.60</td><td class="r">1,412.99</td><td class="r pnl pos">+204.88</td><td class="r reason">REV</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <!-- Mobile card view -->
+      <div class="trades-mobile">
+        <div class="trade-card">
+          <div class="r1"><span class="dir S">空 · 策略 3</span><span class="time">07-05 15:26</span></div>
+          <div class="r2">
+            <div><div class="k">入场</div><div class="v">1,762.19</div></div>
+            <div><div class="k">出场</div><div class="v">1,769.54</div></div>
+            <div><div class="k">盈亏</div><div class="v neg">-71.54</div></div>
+          </div>
+        </div>
+        <div class="trade-card">
+          <div class="r1"><span class="dir L">多 · 策略 2</span><span class="time">07-03 09:00</span></div>
+          <div class="r2">
+            <div><div class="k">入场</div><div class="v">1,713.48</div></div>
+            <div><div class="k">出场</div><div class="v">1,762.19</div></div>
+            <div><div class="k">盈亏</div><div class="v pos">+124.91</div></div>
+          </div>
+        </div>
+        <div class="trade-card">
+          <div class="r1"><span class="dir L">多 · 策略 1</span><span class="time">06-26 21:45</span></div>
+          <div class="r2">
+            <div><div class="k">入场</div><div class="v">1,589.72</div></div>
+            <div><div class="k">出场</div><div class="v">2,041.35</div></div>
+            <div><div class="k">盈亏</div><div class="v pos">+2,541.57</div></div>
+          </div>
+        </div>
+        <div class="trade-card">
+          <div class="r1"><span class="dir L">多 · 策略 3</span><span class="time">06-11 14:30</span></div>
+          <div class="r2">
+            <div><div class="k">入场</div><div class="v">1,410.24</div></div>
+            <div><div class="k">出场</div><div class="v">1,558.09</div></div>
+            <div><div class="k">盈亏</div><div class="v pos">+632.44</div></div>
+          </div>
+        </div>
+        <div class="trade-card">
+          <div class="r1"><span class="dir S">空 · 策略 1</span><span class="time">06-08 09:12</span></div>
+          <div class="r2">
+            <div><div class="k">入场</div><div class="v">1,478.55</div></div>
+            <div><div class="k">出场</div><div class="v">1,410.24</div></div>
+            <div><div class="k">盈亏</div><div class="v pos">+412.05</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEDGER -->
+    <div class="card ledger-card">
+      <div class="ledger-head">
+        <h2 data-i18n="tr.ledger">入金明细</h2>
+        <span class="stat">共 214 笔 · 滚动</span>
+      </div>
+      <div class="ledger-viewport">
+        <div class="ledger-track" id="ledgerTrack"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="agent-sig" data-i18n="footer.sig">◇ 量子 AI · QUANTUM AGENT · v2.3</span>
+    <span data-i18n="footer.sync">© 2026 · 数据每 60 秒同步</span>
+  </div>
+
+</div>
+
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a class="mnav-item" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 10l8-6 8 6v10H4V10z"/><path d="M9 20v-6h6v6"/></svg><span data-i18n="nav.overview">概览</span></a>
+    <a class="mnav-item" href="kline.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4v16M18 4v16"/><rect x="4" y="8" width="4" height="10"/><rect x="16" y="5" width="4" height="14"/></svg><span data-i18n="nav.kline">K 线</span></a>
+    <a class="mnav-item active" href="trades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span data-i18n="nav.trades">交易</span></a>
+    <a class="mnav-item" href="deposit.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="nav.my">我的</span></a>
+  </div>
+</nav>
+
+<script>
+  function tick() {
+    const d = new Date();
+    document.getElementById('clock').textContent = d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0') + '  ' + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' UTC';
+  }
+  tick(); setInterval(tick, 30000);
+
+  function pickAmount(){
+    const r = Math.random();
+    if (r < 0.35) return 500;
+    if (r < 0.70) return 1000;
+    if (r < 0.80) return 10000;
+    if (r < 0.90) return 20000;
+    return 50000;
+  }
+  const TIMES = ['1m 前','3m 前','6m 前','12m 前','18m 前','24m 前','32m 前','44m 前','58m 前','1h 前','1h 前','2h 前','2h 前','3h 前','3h 前','4h 前','4h 前','5h 前','5h 前','6h 前','7h 前','8h 前','9h 前','10h 前','12h 前','14h 前','16h 前','18h 前','20h 前','22h 前','1d 前','1d 前','2d 前','2d 前','2d 前','3d 前','3d 前','4d 前','5d 前','6d 前'];
+  function randHex(n){ const c='abcdef0123456789'; let s=''; for(let i=0;i<n;i++) s+=c[Math.floor(Math.random()*16)]; return s; }
+  const track = document.getElementById('ledgerTrack');
+  const rows=[];
+  for(let i=0;i<TIMES.length;i++){
+    const amt = pickAmount();
+    rows.push(`<div class="ledger-row"><span class="addr"><span class="prefix">0x</span>·····${randHex(4)}</span><span class="amt">${amt.toLocaleString()}</span><span class="t"><span class="chip">deposit</span>${TIMES[i]}</span></div>`);
+  }
+  track.innerHTML = rows.join('') + rows.join('');
+
+  // Filter tabs
+  document.querySelectorAll('.filter-tab').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      document.querySelectorAll('.filter-tab').forEach(x=>x.classList.remove('on'));
+      t.classList.add('on');
+    });
+  });
+</script>
+<script src="i18n.js"></script>
+</body>
+</html>

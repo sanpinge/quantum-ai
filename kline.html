@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>量子 AI · K 线</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.kline-layout { display:grid; grid-template-columns: 1fr 320px; gap:20px; margin-bottom:24px; }
+.kline-card { padding: 22px 24px 14px; }
+.kline-wrap { height: 500px; position:relative; margin-top:6px; }
+.kline-svg { width:100%; height:100%; display:block; }
+.kline-legend { display:flex; gap:20px; margin-top:12px; font-family:var(--font-mono); font-size:10.5px; color:var(--text-muted); letter-spacing:0.06em; flex-wrap:wrap; }
+.kline-legend .swatch { display:inline-block; width:8px; height:8px; margin-right:6px; vertical-align:middle; }
+
+.side-col { display:flex; flex-direction:column; gap:20px; }
+
+/* Position card */
+.pos-card { padding: 20px 22px; position: relative; }
+.pos-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--tech); }
+.pos-title { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.pos-title h3 { margin:0; font-family:var(--font-mono); font-size:12px; letter-spacing:0.16em; text-transform:uppercase; font-weight:600; }
+.pos-title .status { font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em; color: var(--tech); }
+.pos-badge { display:inline-block; padding:3px 10px; font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:16px; }
+.pos-badge.L { background: rgba(34,197,94,0.12); color: var(--up); border:1px solid rgba(34,197,94,0.35); }
+.pos-badge.S { background: rgba(239,68,68,0.12); color: var(--down); border:1px solid rgba(239,68,68,0.35); }
+.pos-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px 20px; font-family:var(--font-mono); font-size:13px; }
+.pos-grid .k { color:var(--text-dim); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; }
+.pos-grid .v { color: var(--text); font-variant-numeric: tabular-nums; font-size:16px; font-weight:500; }
+.pos-grid .v.up { color: var(--up); }
+.pos-grid .v.down { color: var(--down); }
+.pos-item { padding:8px 0; border-bottom: 1px dashed var(--border); }
+.pos-item:nth-last-child(-n+2) { border-bottom:none; }
+
+/* Signals card */
+.sigs-card { padding: 20px 22px; }
+.sig-title { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
+.sig-title h3 { margin:0; font-family:var(--font-mono); font-size:12px; letter-spacing:0.16em; text-transform:uppercase; font-weight:600; }
+.sig-title .note { font-family:var(--font-mono); font-size:10.5px; color: var(--text-dim); letter-spacing:0.06em; }
+.sig-list { display:flex; flex-direction: column; gap:12px; }
+.sig-row { padding:12px 14px; background: var(--panel-2); border:1px solid var(--border); display:flex; flex-direction:column; gap:4px; }
+.sig-row .r1 { display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:12px; }
+.sig-row .r1 .strat { color: var(--tech); font-weight:600; letter-spacing:0.06em; }
+.sig-row .r1 .conf-badge { color: var(--text-muted); font-size:10.5px; letter-spacing:0.06em; }
+.sig-row .r1 .conf-badge b { color: var(--tech); font-weight:500; }
+.sig-row .r2 { display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px; color: var(--text-muted); letter-spacing:0.04em; }
+.sig-row .r2 .dir { padding:1px 8px; font-size:10.5px; letter-spacing:0.1em; }
+.sig-row .r2 .dir.L { background: rgba(34,197,94,0.12); color: var(--up); }
+.sig-row .r2 .dir.S { background: rgba(239,68,68,0.12); color: var(--down); }
+.sig-row .r2 .time { color: var(--text-dim); }
+
+@media (max-width: 960px) {
+  .kline-layout { grid-template-columns: 1fr; }
+  .kline-wrap { height: 380px; }
+}
+@media (max-width: 600px) {
+  .kline-wrap { height: 320px; }
+  .kline-card { padding: 16px 16px 12px; }
+  .pos-card, .sigs-card { padding: 16px 18px; }
+  .pos-grid { grid-template-columns: 1fr 1fr; font-size:12px; }
+  .pos-grid .v { font-size:14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="grid-overlay"></div>
+
+<div class="page">
+
+  <div class="top">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 42 42" fill="none">
+          <circle cx="21" cy="21" r="17" stroke="#f5b942" stroke-width="1.2"/>
+          <circle cx="21" cy="21" r="10" stroke="#5eead4" stroke-width="0.9" opacity="0.7"/>
+          <circle cx="21" cy="21" r="3" fill="#f5b942"/>
+          <line x1="21" y1="4"  x2="21" y2="10" stroke="#5eead4" stroke-width="0.7"/>
+          <line x1="21" y1="32" x2="21" y2="38" stroke="#5eead4" stroke-width="0.7"/>
+          <line x1="4"  y1="21" x2="10" y2="21" stroke="#5eead4" stroke-width="0.7"/>
+          <line x1="32" y1="21" x2="38" y2="21" stroke="#5eead4" stroke-width="0.7"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="name">量子 AI · QUANTUM</div>
+        <div class="sub" data-i18n="brand.sub">AUTONOMOUS TRADING AGENT</div>
+      </div>
+    </div>
+    <div class="top-nav">
+      <a class="nav-item" href="index.html" data-i18n="nav.overview">概览</a>
+      <a class="nav-item active" href="kline.html" data-i18n="nav.kline">K 线</a>
+      <a class="nav-item" href="trades.html" data-i18n="nav.trades">交易</a>
+      <a class="nav-item" href="deposit.html" data-i18n="nav.my">我的</a>
+    </div>
+    <div class="top-meta">
+      <div class="lang-switcher"></div>
+      <span class="live-badge"><span class="dot"></span>LIVE</span>
+      <span id="clock">--:--</span>
+    </div>
+  </div>
+
+  <div class="kline-layout">
+    <!-- K-LINE MAIN -->
+    <div class="card kline-card">
+      <div class="sec-head">
+        <h2 data-i18n="kline.title">ETH-USDT · 15m · Agent 交易标记</h2>
+        <span class="note">最近 30 根 · 自主决策</span>
+      </div>
+      <div class="kline-wrap">
+        <svg class="kline-svg" viewBox="0 0 640 500" preserveAspectRatio="none">
+          <line x1="0" y1="80"  x2="640" y2="80"  stroke="#182230" stroke-dasharray="2 5"/>
+          <line x1="0" y1="180" x2="640" y2="180" stroke="#182230" stroke-dasharray="2 5"/>
+          <line x1="0" y1="280" x2="640" y2="280" stroke="#182230" stroke-dasharray="2 5"/>
+          <line x1="0" y1="380" x2="640" y2="380" stroke="#182230" stroke-dasharray="2 5"/>
+          <line x1="0" y1="460" x2="640" y2="460" stroke="#182230" stroke-dasharray="2 5"/>
+
+          <text x="632" y="84" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,820</text>
+          <text x="632" y="184" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,790</text>
+          <text x="632" y="284" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,760</text>
+          <text x="632" y="384" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,730</text>
+          <text x="632" y="464" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,700</text>
+
+          <g stroke-width="1" stroke-linecap="butt">
+            <line x1="16" y1="360" x2="16" y2="390" stroke="#26a69a"/><rect x="10" y="368" width="12" height="18" fill="#26a69a"/>
+            <line x1="36" y1="350" x2="36" y2="382" stroke="#26a69a"/><rect x="30" y="358" width="12" height="20" fill="#26a69a"/>
+            <line x1="56" y1="332" x2="56" y2="370" stroke="#26a69a"/><rect x="50" y="342" width="12" height="24" fill="#26a69a"/>
+            <line x1="76" y1="325" x2="76" y2="360" stroke="#ef5350"/><rect x="70" y="332" width="12" height="26" fill="#ef5350"/>
+            <line x1="96" y1="340" x2="96" y2="372" stroke="#ef5350"/><rect x="90" y="346" width="12" height="24" fill="#ef5350"/>
+            <line x1="116" y1="322" x2="116" y2="356" stroke="#26a69a"/><rect x="110" y="328" width="12" height="20" fill="#26a69a"/>
+            <line x1="136" y1="308" x2="136" y2="336" stroke="#26a69a"/><rect x="130" y="315" width="12" height="18" fill="#26a69a"/>
+            <line x1="156" y1="298" x2="156" y2="320" stroke="#26a69a"/><rect x="150" y="305" width="12" height="14" fill="#26a69a"/>
+            <line x1="176" y1="282" x2="176" y2="315" stroke="#26a69a"/><rect x="170" y="288" width="12" height="20" fill="#26a69a"/>
+            <line x1="196" y1="278" x2="196" y2="310" stroke="#ef5350"/><rect x="190" y="284" width="12" height="20" fill="#ef5350"/>
+            <line x1="216" y1="285" x2="216" y2="322" stroke="#ef5350"/><rect x="210" y="292" width="12" height="26" fill="#ef5350"/>
+            <line x1="236" y1="295" x2="236" y2="328" stroke="#ef5350"/><rect x="230" y="304" width="12" height="20" fill="#ef5350"/>
+            <line x1="256" y1="285" x2="256" y2="330" stroke="#26a69a"/><rect x="250" y="292" width="12" height="30" fill="#26a69a"/>
+            <line x1="276" y1="265" x2="276" y2="305" stroke="#26a69a"/><rect x="270" y="272" width="12" height="28" fill="#26a69a"/>
+            <line x1="296" y1="240" x2="296" y2="285" stroke="#26a69a"/><rect x="290" y="248" width="12" height="32" fill="#26a69a"/>
+            <line x1="316" y1="228" x2="316" y2="260" stroke="#26a69a"/><rect x="310" y="234" width="12" height="24" fill="#26a69a"/>
+            <line x1="336" y1="220" x2="336" y2="256" stroke="#ef5350"/><rect x="330" y="226" width="12" height="22" fill="#ef5350"/>
+            <line x1="356" y1="228" x2="356" y2="262" stroke="#ef5350"/><rect x="350" y="235" width="12" height="24" fill="#ef5350"/>
+            <line x1="376" y1="216" x2="376" y2="250" stroke="#26a69a"/><rect x="370" y="222" width="12" height="22" fill="#26a69a"/>
+            <line x1="396" y1="200" x2="396" y2="232" stroke="#26a69a"/><rect x="390" y="206" width="12" height="20" fill="#26a69a"/>
+            <line x1="416" y1="182" x2="416" y2="220" stroke="#26a69a"/><rect x="410" y="188" width="12" height="26" fill="#26a69a"/>
+            <line x1="436" y1="168" x2="436" y2="205" stroke="#26a69a"/><rect x="430" y="174" width="12" height="24" fill="#26a69a"/>
+            <line x1="456" y1="160" x2="456" y2="192" stroke="#26a69a"/><rect x="450" y="166" width="12" height="20" fill="#26a69a"/>
+            <line x1="476" y1="168" x2="476" y2="198" stroke="#ef5350"/><rect x="470" y="173" width="12" height="20" fill="#ef5350"/>
+            <line x1="496" y1="172" x2="496" y2="205" stroke="#ef5350"/><rect x="490" y="178" width="12" height="20" fill="#ef5350"/>
+            <line x1="516" y1="158" x2="516" y2="190" stroke="#26a69a"/><rect x="510" y="163" width="12" height="22" fill="#26a69a"/>
+            <line x1="536" y1="138" x2="536" y2="172" stroke="#26a69a"/><rect x="530" y="145" width="12" height="20" fill="#26a69a"/>
+            <line x1="556" y1="118" x2="556" y2="152" stroke="#26a69a"/><rect x="550" y="124" width="12" height="22" fill="#26a69a"/>
+            <line x1="576" y1="105" x2="576" y2="138" stroke="#26a69a"/><rect x="570" y="112" width="12" height="20" fill="#26a69a"/>
+            <line x1="596" y1="115" x2="596" y2="148" stroke="#ef5350"/><rect x="590" y="120" width="12" height="22" fill="#ef5350"/>
+          </g>
+
+          <g><path d="M 56 398 l -6 8 l 12 0 z" fill="#22c55e"/><text x="56" y="424" text-anchor="middle" fill="#22c55e" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1732</text></g>
+          <g><circle cx="176" cy="272" r="5" fill="#f5b942"/><text x="176" y="258" text-anchor="middle" fill="#f5b942" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$54</text></g>
+          <g><path d="M 216 268 l -6 -8 l 12 0 z" fill="#ef4444"/><text x="216" y="252" text-anchor="middle" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1768</text></g>
+          <g><circle cx="276" cy="288" r="5" fill="#7f8d9a"/><text x="276" y="306" text-anchor="middle" fill="#7f8d9a" font-family="'JetBrains Mono',monospace" font-size="11">SL -$14</text></g>
+          <g><path d="M 296 300 l -6 8 l 12 0 z" fill="#22c55e"/><text x="296" y="326" text-anchor="middle" fill="#22c55e" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1755</text></g>
+          <g><circle cx="476" cy="180" r="5" fill="#f5b942"/><text x="476" y="166" text-anchor="middle" fill="#f5b942" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$132</text></g>
+          <g><path d="M 496 208 l -6 -8 l 12 0 z" fill="#ef4444"/><text x="496" y="192" text-anchor="middle" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1793</text></g>
+          <line x1="0" y1="126" x2="640" y2="126" stroke="#f5b942" stroke-dasharray="4 4" stroke-width="0.8" opacity="0.5"/>
+          <rect x="596" y="117" width="44" height="18" fill="#f5b942"/>
+          <text x="618" y="130" text-anchor="middle" fill="#06090e" font-family="'JetBrains Mono',monospace" font-size="10" font-weight="700">$1798</text>
+        </svg>
+      </div>
+      <div class="kline-legend">
+        <span><span class="swatch" style="background:#22c55e"></span>Agent 开多</span>
+        <span><span class="swatch" style="background:#ef4444"></span>Agent 开空</span>
+        <span><span class="swatch" style="background:#f5b942;border-radius:50%"></span>盈利平仓</span>
+        <span><span class="swatch" style="background:#7f8d9a;border-radius:50%"></span>止损</span>
+        <span><span class="swatch" style="background:#f5b942"></span>当前市价</span>
+      </div>
+    </div>
+
+    <!-- SIDE COL -->
+    <div class="side-col">
+      <!-- POSITION -->
+      <div class="card pos-card">
+        <div class="pos-title">
+          <h3 data-i18n="kline.pos">当前持仓</h3>
+          <span class="status">ACTIVE</span>
+        </div>
+        <span class="pos-badge S">空 SHORT · 策略 3</span>
+        <div class="pos-grid">
+          <div class="pos-item"><div class="k" data-i18n="kline.pos.entry">入场价</div><div class="v">$1,793.20</div></div>
+          <div class="pos-item"><div class="k" data-i18n="kline.pos.sl">止损价</div><div class="v">$1,806.50</div></div>
+          <div class="pos-item"><div class="k" data-i18n="kline.pos.qty">数量</div><div class="v">3.90 ETH</div></div>
+          <div class="pos-item"><div class="k" data-i18n="kline.pos.lev">杠杆</div><div class="v">125x</div></div>
+          <div class="pos-item"><div class="k" data-i18n="kline.pos.upnl">浮盈</div><div class="v up">+$21.86</div></div>
+          <div class="pos-item"><div class="k" data-i18n="kline.pos.hold">持仓时长</div><div class="v">04h 15m</div></div>
+        </div>
+      </div>
+
+      <!-- RECENT SIGNALS -->
+      <div class="card sigs-card">
+        <div class="sig-title">
+          <h3 data-i18n="kline.sigs">最近 3 个信号</h3>
+          <span class="note">Agent 决策</span>
+        </div>
+        <div class="sig-list">
+          <div class="sig-row">
+            <div class="r1"><span class="strat">策略 3</span><span class="conf-badge">置信度 <b>87%</b></span></div>
+            <div class="r2"><span class="dir S">空</span><span class="time">02:54:02</span></div>
+          </div>
+          <div class="sig-row">
+            <div class="r1"><span class="strat">策略 4</span><span class="conf-badge">置信度 <b>62%</b></span></div>
+            <div class="r2"><span class="dir L">多</span><span class="time">02:28:56</span></div>
+          </div>
+          <div class="sig-row">
+            <div class="r1"><span class="strat">策略 2</span><span class="conf-badge">置信度 <b>91%</b></span></div>
+            <div class="r2"><span class="dir L">多</span><span class="time">01:12:37</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="agent-sig" data-i18n="footer.sig">◇ 量子 AI · QUANTUM AGENT · v2.3</span>
+    <span data-i18n="footer.sync">© 2026 · 数据每 60 秒同步</span>
+  </div>
+
+</div>
+
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a class="mnav-item" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 10l8-6 8 6v10H4V10z"/><path d="M9 20v-6h6v6"/></svg><span data-i18n="nav.overview">概览</span></a>
+    <a class="mnav-item active" href="kline.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4v16M18 4v16"/><rect x="4" y="8" width="4" height="10"/><rect x="16" y="5" width="4" height="14"/></svg><span data-i18n="nav.kline">K 线</span></a>
+    <a class="mnav-item" href="trades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span data-i18n="nav.trades">交易</span></a>
+    <a class="mnav-item" href="deposit.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="nav.my">我的</span></a>
+  </div>
+</nav>
+
+<script>
+  function tick() {
+    const d = new Date();
+    document.getElementById('clock').textContent = d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0') + '  ' + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' UTC';
+  }
+  tick(); setInterval(tick, 30000);
+</script>
+<script src="i18n.js"></script>
+</body>
+</html>

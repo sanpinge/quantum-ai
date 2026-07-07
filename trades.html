@@ -302,9 +302,9 @@ table.trades { width:100%; border-collapse:collapse; font-family:var(--font-mono
   let _lastEthPrice = null;
   async function fetchEthPrice() {
     try {
-      const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT');
+      const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
       const d = await r.json();
-      const p = parseFloat(d.price);
+      const p = parseFloat(d.ethereum.usd);
       const el = document.getElementById('ethPrice');
       const val = document.getElementById('ethPriceVal');
       const arrow = document.getElementById('ethArrow');

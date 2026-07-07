@@ -23,7 +23,7 @@
 .agent-panel { background: var(--panel); padding:24px 26px; display:flex; flex-direction:column; justify-content:space-between; position:relative; }
 .agent-panel::before { content:'AGENT · NEURAL'; position:absolute; top:24px; right:26px; font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.2em; color: var(--tech); }
 .agent-head { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
-.agent-avatar { width:46px; height:46px; background: linear-gradient(135deg, rgba(94,234,212,0.14), rgba(245,185,66,0.10)); border:1px solid var(--border-strong); display:grid; place-items:center; }
+.agent-avatar { width:46px; height:46px; background: linear-gradient(135deg, rgba(125,189,176,0.14), rgba(212,165,88,0.10)); border:1px solid var(--border-strong); display:grid; place-items:center; }
 .agent-avatar svg { width:22px; height:22px; }
 .agent-name { font-family:var(--font-mono); font-size:13px; font-weight:600; letter-spacing:0.04em; line-height:1.2; }
 .agent-status { font-size:11px; color:var(--tech); font-family:var(--font-mono); letter-spacing:0.06em; margin-top:4px; }
@@ -45,8 +45,8 @@
 .feed-line:last-child { border-bottom:none; }
 .feed-line .t { color:var(--text-dim); font-size:11px; }
 .feed-line .tag { padding:2px 8px; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; border:1px solid var(--border-strong); color:var(--text-muted); white-space:nowrap; }
-.feed-line .tag.sig { color:var(--tech); border-color:rgba(94,234,212,0.35); background:var(--tech-dim); }
-.feed-line .tag.trd { color:var(--accent); border-color:rgba(245,185,66,0.35); background:var(--accent-dim); }
+.feed-line .tag.sig { color:var(--tech); border-color:rgba(125,189,176,0.35); background:var(--tech-dim); }
+.feed-line .tag.trd { color:var(--accent); border-color:rgba(212,165,88,0.35); background:var(--accent-dim); }
 .feed-line .msg { color:var(--text); }
 .feed-line .conf { color:var(--text-muted); font-size:11px; white-space:nowrap; }
 .feed-line .conf b { color:var(--tech); font-weight:500; }
@@ -90,7 +90,7 @@
 .lev-tier.t3::before { background: linear-gradient(180deg, #90d5c5, #e0d090); }
 .lev-tier.t4::before { background: linear-gradient(180deg, #e0d090, var(--accent)); }
 .lev-tier.t5::before { background: var(--accent); }
-.lev-tier.safe { background: linear-gradient(135deg, rgba(245,185,66,0.08), rgba(94,234,212,0.04)); border-color: rgba(245,185,66,0.35); }
+.lev-tier.safe { background: linear-gradient(135deg, rgba(212,165,88,0.08), rgba(125,189,176,0.04)); border-color: rgba(212,165,88,0.35); }
 
 .lev-head {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -111,12 +111,12 @@
   padding: 2px 6px;
   background: var(--tech-dim);
   color: var(--tech);
-  border: 1px solid rgba(94,234,212,0.35);
+  border: 1px solid rgba(125,189,176,0.35);
 }
 .lev-head .lev-tag.safe {
   background: var(--accent-dim);
   color: var(--accent);
-  border-color: rgba(245,185,66,0.35);
+  border-color: rgba(212,165,88,0.35);
 }
 .lev-num {
   font-family: var(--font-mono);
@@ -247,13 +247,13 @@
     <div class="brand">
       <div class="brand-mark">
         <svg viewBox="0 0 42 42" fill="none">
-          <circle cx="21" cy="21" r="17" stroke="#f5b942" stroke-width="1.2"/>
-          <circle cx="21" cy="21" r="10" stroke="#5eead4" stroke-width="0.9" opacity="0.7"/>
-          <circle cx="21" cy="21" r="3" fill="#f5b942"/>
-          <line x1="21" y1="4"  x2="21" y2="10" stroke="#5eead4" stroke-width="0.7"/>
-          <line x1="21" y1="32" x2="21" y2="38" stroke="#5eead4" stroke-width="0.7"/>
-          <line x1="4"  y1="21" x2="10" y2="21" stroke="#5eead4" stroke-width="0.7"/>
-          <line x1="32" y1="21" x2="38" y2="21" stroke="#5eead4" stroke-width="0.7"/>
+          <circle cx="21" cy="21" r="17" stroke="#d4a558" stroke-width="1.2"/>
+          <circle cx="21" cy="21" r="10" stroke="#7dbdb0" stroke-width="0.9" opacity="0.7"/>
+          <circle cx="21" cy="21" r="3" fill="#d4a558"/>
+          <line x1="21" y1="4"  x2="21" y2="10" stroke="#7dbdb0" stroke-width="0.7"/>
+          <line x1="21" y1="32" x2="21" y2="38" stroke="#7dbdb0" stroke-width="0.7"/>
+          <line x1="4"  y1="21" x2="10" y2="21" stroke="#7dbdb0" stroke-width="0.7"/>
+          <line x1="32" y1="21" x2="38" y2="21" stroke="#7dbdb0" stroke-width="0.7"/>
         </svg>
       </div>
       <div class="brand-text">
@@ -303,10 +303,10 @@
     <div class="agent-panel">
       <div class="agent-head">
         <div class="agent-avatar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="1.3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#7dbdb0" stroke-width="1.3">
             <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M5.5 18.5l2-2M16.5 7.5l2-2"/>
-            <circle cx="12" cy="12" r="4.5" stroke="#f5b942"/>
-            <circle cx="12" cy="12" r="1.6" fill="#f5b942"/>
+            <circle cx="12" cy="12" r="4.5" stroke="#d4a558"/>
+            <circle cx="12" cy="12" r="1.6" fill="#d4a558"/>
           </svg>
         </div>
         <div>
@@ -421,15 +421,15 @@
       </div>
       <div class="equity-wrap">
         <svg class="equity-svg" viewBox="0 0 640 220" preserveAspectRatio="none">
-          <defs><linearGradient id="eq-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#f5b942" stop-opacity="0.3"/><stop offset="100%" stop-color="#f5b942" stop-opacity="0"/></linearGradient></defs>
+          <defs><linearGradient id="eq-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#d4a558" stop-opacity="0.3"/><stop offset="100%" stop-color="#d4a558" stop-opacity="0"/></linearGradient></defs>
           <line x1="0" y1="55" x2="640" y2="55" stroke="#1a2432" stroke-dasharray="2 5"/>
           <line x1="0" y1="110" x2="640" y2="110" stroke="#1a2432" stroke-dasharray="2 5"/>
           <line x1="0" y1="165" x2="640" y2="165" stroke="#1a2432" stroke-dasharray="2 5"/>
           <!-- 12 points · 10x total, two pullbacks -->
           <path d="M 0,208 L 58,196 L 116,180 L 175,164 L 233,172 L 291,154 L 349,128 L 407,102 L 465,80 L 523,88 L 582,44 L 640,12 L 640,220 L 0,220 Z" fill="url(#eq-fill)"/>
-          <path d="M 0,208 L 58,196 L 116,180 L 175,164 L 233,172 L 291,154 L 349,128 L 407,102 L 465,80 L 523,88 L 582,44 L 640,12" stroke="#f5b942" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
-          <circle cx="640" cy="12" r="4" fill="#f5b942"/>
-          <circle cx="640" cy="12" r="9" fill="#f5b942" opacity="0.28"/>
+          <path d="M 0,208 L 58,196 L 116,180 L 175,164 L 233,172 L 291,154 L 349,128 L 407,102 L 465,80 L 523,88 L 582,44 L 640,12" stroke="#d4a558" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+          <circle cx="640" cy="12" r="4" fill="#d4a558"/>
+          <circle cx="640" cy="12" r="9" fill="#d4a558" opacity="0.28"/>
         </svg>
       </div>
       <div class="equity-xaxis"><span>25/08</span><span>10月</span><span>12月</span><span>26/02</span><span>04月</span><span>06月</span></div>

@@ -24,8 +24,8 @@
   position: relative;
 }
 .asset-cell.primary.total-hero {
-  background: linear-gradient(135deg, rgba(245,185,66,0.10), rgba(94,234,212,0.06));
-  border-right: 1px solid rgba(245,185,66,0.25);
+  background: linear-gradient(135deg, rgba(212,165,88,0.10), rgba(125,189,176,0.06));
+  border-right: 1px solid rgba(212,165,88,0.25);
   grid-row: span 2;
   display: flex; flex-direction: column; justify-content: center;
   padding: 28px 28px;
@@ -35,7 +35,7 @@
   position: absolute; top: 14px; right: 14px;
   width: 8px; height: 8px;
   border-radius: 50%; background: var(--accent);
-  box-shadow: 0 0 0 0 rgba(245,185,66,0.5);
+  box-shadow: 0 0 0 0 rgba(212,165,88,0.5);
   animation: pulse-dot 1.8s ease-in-out infinite;
 }
 .asset-cell.total-hero .k { font-size: 11px; margin-bottom: 14px; color: var(--accent); opacity: 0.9; }
@@ -46,12 +46,12 @@
   font-weight: 700 !important;
   letter-spacing: -0.03em !important;
   line-height: 1 !important;
-  background: linear-gradient(135deg, #f5b942 0%, #f5e9d0 50%, #5eead4 100%) !important;
+  background: linear-gradient(135deg, #d4a558 0%, #f5e9d0 50%, #7dbdb0 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   color: transparent !important;
-  text-shadow: 0 0 40px rgba(245,185,66,0.2);
+  text-shadow: 0 0 40px rgba(212,165,88,0.2);
 }
 .v.total-big .u {
   font-size: 12px !important;
@@ -64,7 +64,7 @@
 .total-sub {
   margin-top: 18px;
   padding-top: 14px;
-  border-top: 1px dashed rgba(245,185,66,0.2);
+  border-top: 1px dashed rgba(212,165,88,0.2);
   font-family: var(--font-mono);
   font-size: 11.5px;
   color: var(--text-muted);
@@ -107,7 +107,7 @@
   text-transform: uppercase;
   cursor: pointer;
   background: transparent;
-  border: 1px solid rgba(245,185,66,0.4);
+  border: 1px solid rgba(212,165,88,0.4);
   color: var(--accent);
   transition: all .12s ease;
 }
@@ -123,13 +123,13 @@
 
 /* Strategy cell */
 .asset-cell.strategy-cell {
-  background: linear-gradient(135deg, rgba(245,185,66,0.05), rgba(94,234,212,0.03));
+  background: linear-gradient(135deg, rgba(212,165,88,0.05), rgba(125,189,176,0.03));
   border-left: 2px solid var(--accent);
 }
 .v.amber-grad {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  background: linear-gradient(135deg, #f5b942 0%, #f5e9d0 100%);
+  background: linear-gradient(135deg, #d4a558 0%, #f5e9d0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -161,7 +161,7 @@
   border: 1px solid;
   white-space: nowrap;
 }
-.strat-sub .pill { color: var(--tech); border-color: rgba(94,234,212,0.35); background: var(--tech-dim); }
+.strat-sub .pill { color: var(--tech); border-color: rgba(125,189,176,0.35); background: var(--tech-dim); }
 .strat-sub .pill b { color: var(--text-warm); font-weight: 500; font-variant-numeric: tabular-nums; }
 .strat-sub .pill-dim { color: var(--text-dim); border-color: var(--border); }
 
@@ -198,7 +198,7 @@
 .asset-cell .v.big {
   font-size: 24px;
   font-weight: 600;
-  background: linear-gradient(135deg, #26d078 0%, #5eead4 100%);
+  background: linear-gradient(135deg, #26d078 0%, #7dbdb0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -214,7 +214,7 @@
 }
 .withdraw-btn {
   margin-top: 16px;
-  background: linear-gradient(135deg, #22c55e 0%, #5eead4 100%);
+  background: linear-gradient(135deg, #6bb28a 0%, #7dbdb0 100%);
   color: #06090e;
   border: none;
   padding: 12px 22px;
@@ -225,7 +225,7 @@
   text-transform: uppercase;
   cursor: pointer;
   align-self: flex-start;
-  box-shadow: 0 4px 20px rgba(34,197,94,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow: 0 4px 20px rgba(107,178,138,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
   position: relative;
   overflow: hidden;
   transition: all .18s ease;
@@ -237,7 +237,7 @@
   opacity: 0;
   transition: opacity .18s ease;
 }
-.withdraw-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(34,197,94,0.35), inset 0 1px 0 rgba(255,255,255,0.2); }
+.withdraw-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(107,178,138,0.35), inset 0 1px 0 rgba(255,255,255,0.2); }
 .withdraw-btn:hover::before { opacity: 1; }
 .withdraw-btn:active { transform: translateY(0); }
 
@@ -268,21 +268,21 @@
   font-size: 13px;
   color: var(--tech);
   word-break: break-all;
-  text-shadow: 0 0 12px rgba(94,234,212,0.35);
+  text-shadow: 0 0 12px rgba(125,189,176,0.35);
 }
 .ref-copy {
-  background: linear-gradient(135deg, rgba(245,185,66,0.16), rgba(94,234,212,0.16)) !important;
+  background: linear-gradient(135deg, rgba(212,165,88,0.16), rgba(125,189,176,0.16)) !important;
   color: var(--accent) !important;
-  border: 1px solid rgba(245,185,66,0.35) !important;
+  border: 1px solid rgba(212,165,88,0.35) !important;
 }
 .ref-copy:hover {
-  background: linear-gradient(135deg, rgba(245,185,66,0.28), rgba(94,234,212,0.28)) !important;
+  background: linear-gradient(135deg, rgba(212,165,88,0.28), rgba(125,189,176,0.28)) !important;
   color: var(--text-warm) !important;
 }
 .ref-copy {
   background: var(--tech-dim);
   color: var(--tech);
-  border: 1px solid rgba(94,234,212,0.35);
+  border: 1px solid rgba(125,189,176,0.35);
   padding: 8px 16px;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -291,7 +291,7 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
-.ref-copy:hover { background: rgba(94,234,212,0.24); }
+.ref-copy:hover { background: rgba(125,189,176,0.24); }
 
 @media (max-width: 700px) {
   .asset-result { grid-template-columns: 1fr 1fr; }
@@ -318,7 +318,7 @@
   position: absolute;
   top: 0; right: 0; bottom: 0;
   width: 260px;
-  background: radial-gradient(circle at 100% 50%, rgba(245,185,66,0.08), transparent 70%);
+  background: radial-gradient(circle at 100% 50%, rgba(212,165,88,0.08), transparent 70%);
   pointer-events: none;
 }
 .kicker {
@@ -740,13 +740,13 @@
     <div class="brand">
       <div class="brand-mark">
         <svg viewBox="0 0 42 42" fill="none">
-          <circle cx="21" cy="21" r="17" stroke="#f5b942" stroke-width="1.2"/>
-          <circle cx="21" cy="21" r="10" stroke="#5eead4" stroke-width="0.9" opacity="0.7"/>
-          <circle cx="21" cy="21" r="3" fill="#f5b942"/>
-          <line x1="21" y1="4"  x2="21" y2="10" stroke="#5eead4" stroke-width="0.7"/>
-          <line x1="21" y1="32" x2="21" y2="38" stroke="#5eead4" stroke-width="0.7"/>
-          <line x1="4"  y1="21" x2="10" y2="21" stroke="#5eead4" stroke-width="0.7"/>
-          <line x1="32" y1="21" x2="38" y2="21" stroke="#5eead4" stroke-width="0.7"/>
+          <circle cx="21" cy="21" r="17" stroke="#d4a558" stroke-width="1.2"/>
+          <circle cx="21" cy="21" r="10" stroke="#7dbdb0" stroke-width="0.9" opacity="0.7"/>
+          <circle cx="21" cy="21" r="3" fill="#d4a558"/>
+          <line x1="21" y1="4"  x2="21" y2="10" stroke="#7dbdb0" stroke-width="0.7"/>
+          <line x1="21" y1="32" x2="21" y2="38" stroke="#7dbdb0" stroke-width="0.7"/>
+          <line x1="4"  y1="21" x2="10" y2="21" stroke="#7dbdb0" stroke-width="0.7"/>
+          <line x1="32" y1="21" x2="38" y2="21" stroke="#7dbdb0" stroke-width="0.7"/>
         </svg>
       </div>
       <div class="brand-text">

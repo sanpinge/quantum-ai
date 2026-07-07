@@ -287,11 +287,27 @@
 <!-- Lightweight Charts (TradingView 出品免费开源) -->
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <script>
+  function showFallback() {
+    const loading = document.getElementById('chartLoading');
+    if (loading) loading.classList.add('hidden');
+    const fb = document.getElementById('klineFallback');
+    if (fb) fb.style.display = 'block';
+  }
+
+  // Hard 6-second timeout: if nothing rendered yet, force fallback (mobile in restricted network)
+  setTimeout(function() {
+    const fb = document.getElementById('klineFallback');
+    if (fb && fb.style.display === 'none' && !window.LightweightCharts) {
+      showFallback();
+    }
+  }, 6000);
+
   (function initKline() {
     const container = document.getElementById('lwChart');
     const loading = document.getElementById('chartLoading');
     if (!container || !window.LightweightCharts) {
-      if (loading) loading.textContent = '图表库加载失败';
+      // Chart library failed to load (e.g. unpkg.com blocked on mobile in restricted region)
+      showFallback();
       return;
     }
 
@@ -369,11 +385,7 @@
     let liveOK = false;
     loadCandles().then(rows => {
       if (!rows) {
-        // All API sources blocked (e.g. mobile network in restricted region)
-        // Fall back to static demo SVG so page never looks empty
-        loading.classList.add('hidden');
-        const fb = document.getElementById('klineFallback');
-        if (fb) fb.style.display = 'block';
+        showFallback();
         return;
       }
       liveOK = true;

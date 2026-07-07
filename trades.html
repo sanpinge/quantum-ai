@@ -300,33 +300,50 @@ table.trades { width:100%; border-collapse:collapse; font-family:var(--font-mono
 <script src="i18n.js">
   // ═══ Live ETH price ═══
   let _lastEthPrice = null;
+  async function tryGecko() {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+    const d = await r.json();
+    return parseFloat(d.ethereum.usd);
+  }
+  async function tryOkx() {
+    const r = await fetch('https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT');
+    const d = await r.json();
+    return parseFloat(d.data[0].last);
+  }
   async function fetchEthPrice() {
-    try {
-      const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
-      const d = await r.json();
-      const p = parseFloat(d.ethereum.usd);
-      const el = document.getElementById('ethPrice');
-      const val = document.getElementById('ethPriceVal');
-      const arrow = document.getElementById('ethArrow');
-      if (!el || !val) return;
-      val.textContent = '$' + p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      if (_lastEthPrice !== null) {
-        const diff = p - _lastEthPrice;
-        if (Math.abs(diff) >= 0.01) {
-          el.classList.remove('flash-up', 'flash-down', 'up', 'down');
-          void el.offsetWidth;
-          if (diff > 0) { el.classList.add('up', 'flash-up'); arrow.textContent = '▲'; }
-          else          { el.classList.add('down', 'flash-down'); arrow.textContent = '▼'; }
-        }
-      } else {
-        el.classList.add('up');
-        arrow.textContent = '▲';
+    const el = document.getElementById('ethPrice');
+    const val = document.getElementById('ethPriceVal');
+    const arrow = document.getElementById('ethArrow');
+    if (!el || !val) return;
+    let p = null;
+    try { p = await tryGecko(); } catch(e) {}
+    if (p === null || isNaN(p)) {
+      try { p = await tryOkx(); } catch(e) {}
+    }
+    if (p === null || isNaN(p)) {
+      val.textContent = '$----';
+      arrow.textContent = '';
+      el.classList.remove('up','down');
+      return;
+    }
+    val.textContent = '$' + p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (_lastEthPrice !== null) {
+      const diff = p - _lastEthPrice;
+      if (Math.abs(diff) >= 0.01) {
+        el.classList.remove('flash-up', 'flash-down', 'up', 'down');
+        void el.offsetWidth;
+        if (diff > 0) { el.classList.add('up', 'flash-up'); arrow.textContent = '▲'; }
+        else          { el.classList.add('down', 'flash-down'); arrow.textContent = '▼'; }
       }
-      _lastEthPrice = p;
-    } catch(e) {}
+    } else {
+      el.classList.add('up');
+      arrow.textContent = '▲';
+    }
+    _lastEthPrice = p;
   }
   fetchEthPrice();
   setInterval(fetchEthPrice, 10000);
+
 
 </script>
 </body>

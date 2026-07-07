@@ -762,6 +762,7 @@
     </div>
     <div class="top-meta">
       <div class="lang-switcher"></div>
+      <span class="eth-price" id="ethPrice"><span class="lbl">ETH</span><span id="ethPriceVal">$----</span><span class="arrow" id="ethArrow"></span></span>
       <span class="live-badge"><span class="dot"></span>LIVE</span>
       <span id="clock">--:--</span>
     </div>
@@ -947,17 +948,17 @@
   tick(); setInterval(tick, 30000);
 
   // ═══ Asset display (auto) ═══
-  // MOCK 演示数据 - 真实环境从连接的钱包地址 + data.json 查
+  // 新用户默认空账户; 真实环境从连接的钱包地址 + data.json 查
   const MOCK_ASSET = {
-    address: '0x8f3e2c9b7d5a1f0e6b4c8d2a9f7e3b5c1d0a2f5',
-    deposit: 10000,           // 累计入金
+    address: '',              // 未连接
+    deposit: 0,               // 累计入金
     withdrawn: 0,             // 累计已提
-    stratReward: 2734,        // 策略收益
-    teamReward: 386,          // 团队收益
-    redeemed: 0,              // 已赎回本金 (进可用余额)
-    teamN: 7,                 // 团队人数
-    depositDays: 42,          // 已入金天数
-    pending: 420              // 本月待发
+    stratReward: 0,           // 策略收益
+    teamReward: 0,            // 团队收益
+    redeemed: 0,              // 已赎回本金
+    teamN: 0,                 // 团队人数
+    depositDays: 0,           // 已入金天数
+    pending: 0                // 本月待发
   };
   // 可用余额 = 策略收益 + 团队收益 + 已赎回本金
   MOCK_ASSET.available = MOCK_ASSET.stratReward + MOCK_ASSET.teamReward + MOCK_ASSET.redeemed;
@@ -966,8 +967,16 @@
     get() { return this.deposit + this.stratReward + this.teamReward - this.withdrawn; }
   });
   function renderAsset(a) {
-    const short = a.address.slice(0, 6) + '···' + a.address.slice(-4);
-    document.getElementById('walletStatus').textContent = '已连接 · ' + short;
+    const connected = a.address && a.address.length >= 10;
+    const wsEl = document.getElementById('walletStatus');
+    if (connected) {
+      const short = a.address.slice(0, 6) + '···' + a.address.slice(-4);
+      wsEl.textContent = '已连接 · ' + short;
+      wsEl.style.color = 'var(--tech)';
+    } else {
+      wsEl.textContent = '未连接钱包';
+      wsEl.style.color = 'var(--text-dim)';
+    }
     // 可用余额 = 策略 + 团队 + 赎回
     a.available = a.stratReward + a.teamReward + a.redeemed;
     document.getElementById('myAvail').innerHTML = a.available.toLocaleString() + '<span class="u">USDT</span>';
@@ -987,7 +996,11 @@
     const rBtn = document.getElementById('redeemBtn');
     if (rBtn) {
       const availPrincipal = a.deposit - a.redeemed - a.withdrawn;
-      if (a.depositDays < 30) {
+      if (!connected || a.deposit <= 0) {
+        rBtn.classList.add('locked');
+        rBtn.textContent = '暂无本金';
+        rBtn.disabled = true;
+      } else if (a.depositDays < 30) {
         rBtn.classList.add('locked');
         rBtn.textContent = `锁定 ${30 - a.depositDays} 天`;
         rBtn.disabled = true;
@@ -1000,11 +1013,18 @@
         rBtn.disabled = false;
       }
     }
-    const refCode = a.address.slice(-4);
-    const refUrl = 'https://quantum-ai.io/?ref=' + refCode;
+    // 邀请链接
+    const refBlock = document.querySelector('.ref-block');
     const el = document.getElementById('myRefCode');
-    el.textContent = refUrl;
-    el.dataset.url = refUrl;
+    if (connected) {
+      if (refBlock) refBlock.style.display = '';
+      const refCode = a.address.slice(-4);
+      const refUrl = 'https://sanpinge.github.io/quantum-ai/?ref=' + refCode;
+      el.textContent = refUrl;
+      el.dataset.url = refUrl;
+    } else {
+      if (refBlock) refBlock.style.display = 'none';
+    }
   }
   renderAsset(MOCK_ASSET);
 
@@ -1175,6 +1195,37 @@
   }
   track.innerHTML = rows.join('') + rows.join('');
 </script>
-<script src="i18n.js"></script>
+<script src="i18n.js">
+  // ═══ Live ETH price ═══
+  let _lastEthPrice = null;
+  async function fetchEthPrice() {
+    try {
+      const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT');
+      const d = await r.json();
+      const p = parseFloat(d.price);
+      const el = document.getElementById('ethPrice');
+      const val = document.getElementById('ethPriceVal');
+      const arrow = document.getElementById('ethArrow');
+      if (!el || !val) return;
+      val.textContent = '$' + p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (_lastEthPrice !== null) {
+        const diff = p - _lastEthPrice;
+        if (Math.abs(diff) >= 0.01) {
+          el.classList.remove('flash-up', 'flash-down', 'up', 'down');
+          void el.offsetWidth;
+          if (diff > 0) { el.classList.add('up', 'flash-up'); arrow.textContent = '▲'; }
+          else          { el.classList.add('down', 'flash-down'); arrow.textContent = '▼'; }
+        }
+      } else {
+        el.classList.add('up');
+        arrow.textContent = '▲';
+      }
+      _lastEthPrice = p;
+    } catch(e) {}
+  }
+  fetchEthPrice();
+  setInterval(fetchEthPrice, 10000);
+
+</script>
 </body>
 </html>

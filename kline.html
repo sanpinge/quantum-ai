@@ -95,6 +95,7 @@
     </div>
     <div class="top-meta">
       <div class="lang-switcher"></div>
+      <span class="eth-price" id="ethPrice"><span class="lbl">ETH</span><span id="ethPriceVal">$----</span><span class="arrow" id="ethArrow"></span></span>
       <span class="live-badge"><span class="dot"></span>LIVE</span>
       <span id="clock">--:--</span>
     </div>
@@ -241,6 +242,37 @@
   }
   tick(); setInterval(tick, 30000);
 </script>
-<script src="i18n.js"></script>
+<script src="i18n.js">
+  // ═══ Live ETH price ═══
+  let _lastEthPrice = null;
+  async function fetchEthPrice() {
+    try {
+      const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT');
+      const d = await r.json();
+      const p = parseFloat(d.price);
+      const el = document.getElementById('ethPrice');
+      const val = document.getElementById('ethPriceVal');
+      const arrow = document.getElementById('ethArrow');
+      if (!el || !val) return;
+      val.textContent = '$' + p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (_lastEthPrice !== null) {
+        const diff = p - _lastEthPrice;
+        if (Math.abs(diff) >= 0.01) {
+          el.classList.remove('flash-up', 'flash-down', 'up', 'down');
+          void el.offsetWidth;
+          if (diff > 0) { el.classList.add('up', 'flash-up'); arrow.textContent = '▲'; }
+          else          { el.classList.add('down', 'flash-down'); arrow.textContent = '▼'; }
+        }
+      } else {
+        el.classList.add('up');
+        arrow.textContent = '▲';
+      }
+      _lastEthPrice = p;
+    } catch(e) {}
+  }
+  fetchEthPrice();
+  setInterval(fetchEthPrice, 10000);
+
+</script>
 </body>
 </html>

@@ -16,6 +16,41 @@ const I18N = {
     ja: '神経判断 · 24/7 · オンチェーン透明',
     ko: '신경 판단 · 24/7 · 온체인 투명'
   },
+  'hero.slogan':    {
+    zh: 'AI 自主交易智能体 · 神经决策 · 全天候扫描',
+    en: 'Autonomous AI trading agent · neural · 24/7',
+    ja: 'AI 自律トレーディングエージェント · 神経判断 · 24/7',
+    ko: 'AI 자율 트레이딩 에이전트 · 신경 판단 · 24/7'
+  },
+  'hero.f.left':    { zh: '收益', en: 'Return', ja: 'リターン', ko: '수익' },
+  'hero.f.t1':      { zh: '复合策略', en: 'Composite', ja: '複合戦略', ko: '복합 전략' },
+  'hero.f.t2':      { zh: '神经决策', en: 'Neural', ja: '神経判断', ko: '신경 판단' },
+  'hero.f.t3':      { zh: '24/7', en: '24/7', ja: '24/7', ko: '24/7' },
+  'hero.cta1':      { zh: '开始注资 →', en: 'Start Depositing →', ja: '注資開始 →', ko: '입금 시작 →' },
+  'hero.cta2':      { zh: '查看策略', en: 'View Strategy', ja: '戦略を見る', ko: '전략 보기' },
+  'metric.fund':    { zh: '基金池', en: 'Fund Pool', ja: 'ファンドプール', ko: '펀드풀' },
+  'metric.profit':  { zh: '收益池', en: 'Profit Pool', ja: '収益プール', ko: '수익풀' },
+  'metric.roi':     { zh: '30日 收益率', en: '30D Return', ja: '30日 リターン', ko: '30일 수익률' },
+  'metric.trades':  { zh: '累计交易 笔', en: 'Total Trades', ja: '累計取引 件', ko: '누적 거래 건' },
+
+  // ── Showcase Gallery ──
+  'show.title':     { zh: 'Agent 六大能力', en: 'Six Agent Capabilities', ja: 'エージェント 6 大能力', ko: '에이전트 6대 능력' },
+  'show.note':      { zh: '从分析到执行 · 全景可视化', en: 'Analysis to execution · full visualization', ja: '分析から実行まで · 全景可視化', ko: '분석부터 실행까지 · 전경 시각화' },
+  'show.badge':     { zh: '示例数据', en: 'Sample data', ja: 'サンプルデータ', ko: '예시 데이터' },
+  'show.c0.t':      { zh: '综合评估', en: 'Overall Assessment', ja: '総合評価', ko: '종합 평가' },
+  'show.c0.d':      { zh: 'Agent 六维能力雷达图', en: '6-axis capability radar', ja: 'エージェント六次元能力レーダー', ko: '에이전트 6차원 능력 레이더' },
+  'show.c1.t':      { zh: '策略权重', en: 'Strategy Mix', ja: '戦略ウェイト', ko: '전략 비중' },
+  'show.c1.d':      { zh: '5 大策略贡献占比', en: '5 strategies · contribution ratio', ja: '5 大戦略の貢献比率', ko: '5대 전략 기여 비율' },
+  'show.c2.t':      { zh: '月度回报', en: 'Monthly Returns', ja: '月次リターン', ko: '월별 수익' },
+  'show.c2.d':      { zh: '近 12 个月净值变化 · 10/12 正', en: '12-month equity · 10/12 positive', ja: '12ヶ月の資産推移 · 10/12 プラス', ko: '12개월 순자산 · 10/12 플러스' },
+  'show.c3.t':      { zh: '回撤曲线', en: 'Drawdown', ja: 'ドローダウン', ko: '드로다운' },
+  'show.c3.d':      { zh: '最大回撤 -16.7% · 快速修复', en: 'Max DD -16.7% · fast recovery', ja: '最大 DD -16.7% · 早期回復', ko: '최대 DD -16.7% · 빠른 복구' },
+  'show.c4.t':      { zh: '杠杆分布', en: 'Leverage Distribution', ja: 'レバレッジ分布', ko: '레버리지 분포' },
+  'show.c4.d':      { zh: '按资金规模自动匹配 · 5 档', en: 'Auto-tiered by capital · 5 levels', ja: '資金規模で自動調整 · 5 段階', ko: '자본별 자동 매칭 · 5단계' },
+  'show.c5.t':      { zh: '恐慌指数', en: 'Fear Index', ja: '恐慌指数', ko: '공포 지수' },
+  'show.c5.d':      { zh: '市场情绪实时监测 · 62 偏谨慎', en: 'Market sentiment · 62 cautious', ja: '市場センチメント · 62 慎重', ko: '시장 심리 · 62 신중' },
+  'show.c6.t':      { zh: '持仓时长', en: 'Hold Duration', ja: '保有時間', ko: '보유 시간' },
+  'show.c6.d':      { zh: '218 笔交易按时长分布', en: '218 trades · duration distribution', ja: '218 取引の保有時間分布', ko: '218건 거래 시간 분포' },
 
   // ── Pools ──
   'pool.fund':      { zh: '基金池 · Fund', en: 'Fund Pool', ja: 'ファンドプール', ko: '펀드풀' },

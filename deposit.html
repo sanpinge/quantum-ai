@@ -1142,8 +1142,6 @@
   // 邀请 ref 处理
   const urlRef = new URLSearchParams(window.location.search).get('ref');
   if (urlRef) console.log('邀请人: ' + urlRef);
-  document.getElementById('queryAddr').addEventListener('keyup', e => { if (e.key === 'Enter') lookupAsset(); });
-
   document.querySelectorAll('.tier').forEach(t=>{
     t.addEventListener('click', ()=>{
       document.querySelectorAll('.tier').forEach(x=>x.classList.remove('on'));

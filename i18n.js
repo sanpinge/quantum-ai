@@ -28,9 +28,9 @@ const I18N = {
   'hero.f.t3':      { zh: '24/7', en: '24/7', ja: '24/7', ko: '24/7' },
   'hero.cta1':      { zh: '开始注资 →', en: 'Start Depositing →', ja: '注資開始 →', ko: '입금 시작 →' },
   'hero.cta2':      { zh: '查看策略', en: 'View Strategy', ja: '戦略を見る', ko: '전략 보기' },
-  'metric.fund':    { zh: '基金池', en: 'Fund Pool', ja: 'ファンドプール', ko: '펀드풀' },
+  'metric.fund':    { zh: '资金池', en: 'Fund Pool', ja: 'ファンドプール', ko: '펀드풀' },
   'metric.profit':  { zh: '收益池', en: 'Profit Pool', ja: '収益プール', ko: '수익풀' },
-  'metric.roi':     { zh: '30日 收益率', en: '30D Return', ja: '30日 リターン', ko: '30일 수익률' },
+  'metric.roi':     { zh: '月化收益', en: 'Monthly Return', ja: '月次リターン', ko: '월간 수익' },
   'metric.trades':  { zh: '累计交易 笔', en: 'Total Trades', ja: '累計取引 件', ko: '누적 거래 건' },
 
   // ── Showcase Gallery ──
@@ -39,18 +39,50 @@ const I18N = {
   'show.badge':     { zh: '示例数据', en: 'Sample data', ja: 'サンプルデータ', ko: '예시 데이터' },
   'show.c0.t':      { zh: '综合评估', en: 'Overall Assessment', ja: '総合評価', ko: '종합 평가' },
   'show.c0.d':      { zh: 'Agent 六维能力雷达图', en: '6-axis capability radar', ja: 'エージェント六次元能力レーダー', ko: '에이전트 6차원 능력 레이더' },
-  'show.c1.t':      { zh: '策略权重', en: 'Strategy Mix', ja: '戦略ウェイト', ko: '전략 비중' },
-  'show.c1.d':      { zh: '5 大策略贡献占比', en: '5 strategies · contribution ratio', ja: '5 大戦略の貢献比率', ko: '5대 전략 기여 비율' },
+  'show.c1.t':      { zh: '平仓类型', en: 'Exit Type', ja: '決済タイプ', ko: '청산 유형' },
+  'show.c1.d':      { zh: '315 单按平仓触发方式', en: '315 trades by exit trigger', ja: '315 取引の決済方式別', ko: '315건 청산 방식별' },
   'show.c2.t':      { zh: '月度回报', en: 'Monthly Returns', ja: '月次リターン', ko: '월별 수익' },
-  'show.c2.d':      { zh: '近 12 个月净值变化 · 10/12 正', en: '12-month equity · 10/12 positive', ja: '12ヶ月の資産推移 · 10/12 プラス', ko: '12개월 순자산 · 10/12 플러스' },
+  'show.c2.d':      { zh: '近 13 个月净值变化 · 12/13 正', en: '13-month equity · 12/13 positive', ja: '13ヶ月の資産推移 · 12/13 プラス', ko: '13개월 순자산 · 12/13 플러스' },
   'show.c3.t':      { zh: '回撤曲线', en: 'Drawdown', ja: 'ドローダウン', ko: '드로다운' },
-  'show.c3.d':      { zh: '最大回撤 -16.7% · 快速修复', en: 'Max DD -16.7% · fast recovery', ja: '最大 DD -16.7% · 早期回復', ko: '최대 DD -16.7% · 빠른 복구' },
-  'show.c4.t':      { zh: '杠杆分布', en: 'Leverage Distribution', ja: 'レバレッジ分布', ko: '레버리지 분포' },
-  'show.c4.d':      { zh: '按资金规模自动匹配 · 5 档', en: 'Auto-tiered by capital · 5 levels', ja: '資金規模で自動調整 · 5 段階', ko: '자본별 자동 매칭 · 5단계' },
+  'show.c3.d':      { zh: '最大回撤 -12.7% · 快速修复', en: 'Max DD -12.7% · fast recovery', ja: '最大 DD -12.7% · 早期回復', ko: '최대 DD -12.7% · 빠른 복구' },
+  'show.c4.t':      { zh: '杠杆使用', en: 'Leverage Usage', ja: 'レバレッジ使用', ko: '레버리지 사용' },
+  'show.c4.d':      { zh: '10x 固定 · 稳健档 · 100% 单一档位', en: '10x fixed · single tier · steady', ja: '10x 固定 · 単一段階 · 安定', ko: '10x 고정 · 단일 단계 · 안정' },
   'show.c5.t':      { zh: '恐慌指数', en: 'Fear Index', ja: '恐慌指数', ko: '공포 지수' },
   'show.c5.d':      { zh: '市场情绪实时监测 · 62 偏谨慎', en: 'Market sentiment · 62 cautious', ja: '市場センチメント · 62 慎重', ko: '시장 심리 · 62 신중' },
   'show.c6.t':      { zh: '持仓时长', en: 'Hold Duration', ja: '保有時間', ko: '보유 시간' },
-  'show.c6.d':      { zh: '218 笔交易按时长分布', en: '218 trades · duration distribution', ja: '218 取引の保有時間分布', ko: '218건 거래 시간 분포' },
+  'show.c6.d':      { zh: '315 笔交易按时长分布', en: '315 trades · duration distribution', ja: '315 取引の保有時間分布', ko: '315건 거래 시간 분포' },
+
+  // ── Trades equity card title / sub ──
+  'tr.eqTitle':     {
+    zh: '$10,000 复利回测 · $10,000 → $151,545 (15.15x)',
+    en: '$10,000 Compound Backtest · $10,000 → $151,545 (15.15x)',
+    ja: '$10,000 複利バックテスト · $10,000 → $151,545 (15.15x)',
+    ko: '$10,000 복리 백테스트 · $10,000 → $151,545 (15.15x)'
+  },
+  'tr.eqSub':       {
+    zh: '量子 AI 策略 · 10x 固定杠杆 · 20% 固定仓位 · 2025-07-08 至 2026-07-08 · 315 单 · 恒定资金满仓回测 · 无 lookahead',
+    en: 'Quantum AI Strategy · 10x fixed leverage · 20% fixed risk · 2025-07-08 to 2026-07-08 · 315 trades · constant capital · no lookahead',
+    ja: '量子 AI 戦略 · 10x 固定レバレッジ · 20% 固定ポジション · 2025-07-08 〜 2026-07-08 · 315 取引 · 恒定資金 · lookahead なし',
+    ko: '퀀텀 AI 전략 · 10x 고정 레버리지 · 20% 고정 포지션 · 2025-07-08 ~ 2026-07-08 · 315건 · 일정 자본 · lookahead 없음'
+  },
+
+  // ── Trades table headers ──
+  'tr.h.time':      { zh: '时间', en: 'Time', ja: '時刻', ko: '시간' },
+  'tr.h.lev':       { zh: '杠杆', en: 'Lev', ja: 'レバレッジ', ko: '레버리지' },
+  'tr.h.dir':       { zh: '方向', en: 'Side', ja: '方向', ko: '방향' },
+  'tr.h.entry':     { zh: '入场', en: 'Entry', ja: 'エントリー', ko: '진입' },
+  'tr.h.exit':      { zh: '出场', en: 'Exit', ja: '決済', ko: '청산' },
+  'tr.h.pnl':       { zh: '盈亏', en: 'PnL', ja: '損益', ko: '손익' },
+  'tr.h.reason':    { zh: '类型', en: 'Type', ja: 'タイプ', ko: '타입' },
+  'tr.k.total':     { zh: '总交易', en: 'Total Trades', ja: '総取引', ko: '총 거래' },
+  'tr.k.wr':        { zh: '胜率', en: 'Win Rate', ja: '勝率', ko: '승률' },
+  'tr.k.pf':        { zh: '盈亏比', en: 'Profit Factor', ja: 'PF', ko: 'PF' },
+  'tr.k.dd':        { zh: '最大回撤', en: 'Max DD', ja: '最大 DD', ko: '최대 DD' },
+  'tr.eqTag':       { zh: '真实回测', en: 'Live Backtest', ja: 'リアル BT', ko: '실제 백테스트' },
+  'tr.detail':      { zh: '交易明细', en: 'Trade Detail', ja: '取引明細', ko: '거래 상세' },
+  'tr.ledger':      { zh: '入金明细', en: 'Deposit Ledger', ja: '入金明細', ko: '입금 내역' },
+  'tr.ledgerCount': { zh: '共 67 笔 · $135,500 · 滚动', en: '67 deposits · $135,500 · scrolling', ja: '計 67 件 · $135,500 · スクロール', ko: '총 67건 · $135,500 · 스크롤' },
+  'tr.all':         { zh: '全部', en: 'All', ja: '全て', ko: '전체' },
 
   // ── Pools ──
   'pool.fund':      { zh: '基金池 · Fund', en: 'Fund Pool', ja: 'ファンドプール', ko: '펀드풀' },

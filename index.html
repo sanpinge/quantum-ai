@@ -204,7 +204,7 @@
 
 .lev-tiers {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin-bottom: 22px;
 }
@@ -313,7 +313,7 @@
 }
 
 @media (max-width: 960px) {
-  .lev-tiers { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .lev-tiers { grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .lev-tier { padding: 12px 10px; }
   .lev-num { font-size: 22px; }
   .lev-num .lev-x { font-size: 12px; }
@@ -443,19 +443,19 @@
   <!-- Metrics strip · 4 大关键数字 -->
   <section class="metrics-strip">
     <div class="metric">
-      <div class="metric-value">856,240<span class="unit">USDT</span></div>
-      <div class="metric-label" data-i18n="metric.fund">基金池</div>
+      <div class="metric-value">135,500<span class="unit">USDT</span></div>
+      <div class="metric-label" data-i18n="metric.fund">资金池</div>
     </div>
     <div class="metric">
-      <div class="metric-value amber">198,650<span class="unit">USDT</span></div>
+      <div class="metric-value amber">126,847<span class="unit">USDT</span></div>
       <div class="metric-label" data-i18n="metric.profit">收益池</div>
     </div>
     <div class="metric">
-      <div class="metric-value up">+23.2%</div>
-      <div class="metric-label" data-i18n="metric.roi">30日 收益率</div>
+      <div class="metric-value up">+25.4%</div>
+      <div class="metric-label" data-i18n="metric.roi">月化收益</div>
     </div>
     <div class="metric">
-      <div class="metric-value tech">218</div>
+      <div class="metric-value tech">108</div>
       <div class="metric-label" data-i18n="metric.trades">累计交易 笔</div>
     </div>
   </section>
@@ -535,29 +535,21 @@
       <!-- 2 · 策略权重 -->
       <div class="show-card">
         <div class="show-badge" data-i18n="show.badge">示例数据</div>
-        <h3 data-i18n="show.c1.t">策略权重</h3>
-        <p data-i18n="show.c1.d">5 大策略贡献占比</p>
+        <h3 data-i18n="show.c1.t">平仓类型</h3>
+        <p data-i18n="show.c1.d">309 单按平仓触发方式</p>
         <div class="show-viz">
           <svg viewBox="0 0 240 140">
             <g transform="translate(80 72)">
               <circle cx="0" cy="0" r="38" stroke="#1c2b40" stroke-width="16" fill="none"/>
-              <circle cx="0" cy="0" r="38" stroke="#5eead4" stroke-width="16" fill="none"
-                stroke-dasharray="66.85 238.76" stroke-dashoffset="0" transform="rotate(-90)"/>
-              <circle cx="0" cy="0" r="38" stroke="#f5b942" stroke-width="16" fill="none"
-                stroke-dasharray="52.53 238.76" stroke-dashoffset="-66.85" transform="rotate(-90)"/>
-              <circle cx="0" cy="0" r="38" stroke="#22c55e" stroke-width="16" fill="none"
-                stroke-dasharray="47.75 238.76" stroke-dashoffset="-119.38" transform="rotate(-90)"/>
-              <circle cx="0" cy="0" r="38" stroke="#a8c5d4" stroke-width="16" fill="none"
-                stroke-dasharray="38.20 238.76" stroke-dashoffset="-167.13" transform="rotate(-90)"/>
-              <circle cx="0" cy="0" r="38" stroke="#8ea0b0" stroke-width="16" fill="none"
-                stroke-dasharray="33.43 238.76" stroke-dashoffset="-205.33" transform="rotate(-90)"/>
+              <circle cx="0" cy="0" r="38" stroke="#22c55e" stroke-width="16" fill="none" stroke-dasharray="119.77 238.76" stroke-dashoffset="0.00" transform="rotate(-90)"/>
+              <circle cx="0" cy="0" r="38" stroke="#ef4444" stroke-width="16" fill="none" stroke-dasharray="118.22 238.76" stroke-dashoffset="-119.77" transform="rotate(-90)"/>
+              <circle cx="0" cy="0" r="38" stroke="#5eead4" stroke-width="16" fill="none" stroke-dasharray="0.77 238.76" stroke-dashoffset="-237.99" transform="rotate(-90)"/>
+              
             </g>
             <g font-family="'JetBrains Mono',monospace" font-size="9.5">
-              <rect x="140" y="30" width="8" height="8" fill="#5eead4"/><text x="152" y="37" fill="#c5cfda">策略1  28%</text>
-              <rect x="140" y="48" width="8" height="8" fill="#f5b942"/><text x="152" y="55" fill="#c5cfda">策略2  22%</text>
-              <rect x="140" y="66" width="8" height="8" fill="#22c55e"/><text x="152" y="73" fill="#c5cfda">策略3  20%</text>
-              <rect x="140" y="84" width="8" height="8" fill="#a8c5d4"/><text x="152" y="91" fill="#c5cfda">策略4  16%</text>
-              <rect x="140" y="102" width="8" height="8" fill="#8ea0b0"/><text x="152" y="109" fill="#c5cfda">策略5  14%</text>
+              <rect x="140" y="30" width="8" height="8" fill="#22c55e"/><text x="152" y="37" fill="#c5cfda">止损 50%</text>
+              <rect x="140" y="50" width="8" height="8" fill="#ef4444"/><text x="152" y="57" fill="#c5cfda">反转平仓 49%</text>
+              <rect x="140" y="70" width="8" height="8" fill="#5eead4"/><text x="152" y="77" fill="#c5cfda">日终 0%</text>
             </g>
           </svg>
         </div>
@@ -566,25 +558,26 @@
       <div class="show-card">
         <div class="show-badge" data-i18n="show.badge">示例数据</div>
         <h3 data-i18n="show.c2.t">月度回报</h3>
-        <p data-i18n="show.c2.d">近 12 个月净值变化 · 10/12 正</p>
+        <p data-i18n="show.c2.d">近 13 个月净值变化 · 12/13 正</p>
         <div class="show-viz">
           <svg viewBox="0 0 240 140">
             <line x1="0" y1="80" x2="240" y2="80" stroke="#1c2b40" stroke-dasharray="2 4"/>
             <g>
-              <rect x="6"   y="52" width="14" height="28" fill="#22c55e" rx="1"/>
-              <rect x="24"  y="42" width="14" height="38" fill="#22c55e" rx="1"/>
-              <rect x="42"  y="46" width="14" height="34" fill="#22c55e" rx="1"/>
-              <rect x="60"  y="80" width="14" height="14" fill="#ef4444" rx="1"/>
-              <rect x="78"  y="40" width="14" height="40" fill="#22c55e" rx="1"/>
-              <rect x="96"  y="24" width="14" height="56" fill="#22c55e" rx="1"/>
-              <rect x="114" y="26" width="14" height="54" fill="#22c55e" rx="1"/>
-              <rect x="132" y="38" width="14" height="42" fill="#22c55e" rx="1"/>
-              <rect x="150" y="80" width="14" height="10" fill="#ef4444" rx="1"/>
-              <rect x="168" y="10" width="14" height="70" fill="#22c55e" rx="1"/>
-              <rect x="186" y="30" width="14" height="50" fill="#22c55e" rx="1"/>
-              <rect x="204" y="46" width="14" height="34" fill="#22c55e" rx="1"/>
+              <rect x="1.0" y="36.4" width="16.5" height="43.6" fill="#22c55e" rx="1"/>
+              <rect x="19.5" y="20.0" width="16.5" height="60.0" fill="#22c55e" rx="1"/>
+              <rect x="37.9" y="75.1" width="16.5" height="4.9" fill="#22c55e" rx="1"/>
+              <rect x="56.4" y="65.0" width="16.5" height="15.0" fill="#22c55e" rx="1"/>
+              <rect x="74.8" y="73.3" width="16.5" height="6.7" fill="#22c55e" rx="1"/>
+              <rect x="93.3" y="80.0" width="16.5" height="1.5" fill="#ef4444" rx="1"/>
+              <rect x="111.8" y="78.6" width="16.5" height="1.4" fill="#22c55e" rx="1"/>
+              <rect x="130.2" y="77.6" width="16.5" height="2.4" fill="#22c55e" rx="1"/>
+              <rect x="148.7" y="78.2" width="16.5" height="1.8" fill="#22c55e" rx="1"/>
+              <rect x="167.2" y="79.7" width="16.5" height="0.3" fill="#22c55e" rx="1"/>
+              <rect x="185.6" y="76.9" width="16.5" height="3.1" fill="#22c55e" rx="1"/>
+              <rect x="204.1" y="76.1" width="16.5" height="3.9" fill="#22c55e" rx="1"/>
+              <rect x="222.5" y="80.0" width="16.5" height="0.2" fill="#ef4444" rx="1"/>
             </g>
-            <text x="6" y="126" fill="#556676" font-family="'JetBrains Mono',monospace" font-size="9">25/08</text>
+            <text x="6" y="126" fill="#556676" font-family="'JetBrains Mono',monospace" font-size="9">25/07</text>
             <text x="210" y="126" fill="#556676" font-family="'JetBrains Mono',monospace" font-size="9">26/07</text>
           </svg>
         </div>
@@ -593,7 +586,7 @@
       <div class="show-card">
         <div class="show-badge" data-i18n="show.badge">示例数据</div>
         <h3 data-i18n="show.c3.t">回撤曲线</h3>
-        <p data-i18n="show.c3.d">最大回撤 -16.7% · 快速修复</p>
+        <p data-i18n="show.c3.d">最大回撤 -12.7% · 快速修复</p>
         <div class="show-viz">
           <svg viewBox="0 0 240 140">
             <defs>
@@ -604,37 +597,24 @@
             </defs>
             <line x1="0" y1="28" x2="240" y2="28" stroke="#1c2b40" stroke-dasharray="2 4"/>
             <text x="4" y="24" fill="#556676" font-family="'JetBrains Mono',monospace" font-size="8">0%</text>
-            <path d="M 0,28 L 20,40 L 40,68 L 60,88 L 80,108 L 100,92 L 120,72 L 140,48 L 160,58 L 180,78 L 200,55 L 220,38 L 240,30 L 240,140 L 0,140 Z"
-              fill="url(#dd-fill)"/>
-            <path d="M 0,28 L 20,40 L 40,68 L 60,88 L 80,108 L 100,92 L 120,72 L 140,48 L 160,58 L 180,78 L 200,55 L 220,38 L 240,30"
-              stroke="#ef4444" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
-            <circle cx="80" cy="108" r="3" fill="#ef4444"/>
-            <text x="86" y="122" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="9">Max DD -16.7%</text>
+            <path d="M 0,28 L 8,48 L 16,28 L 24,31 L 32,33 L 40,31 L 48,28 L 56,37 L 64,28 L 72,28 L 80,43 L 88,28 L 96,54 L 104,44 L 112,60 L 120,57 L 128,53 L 136,46 L 144,30 L 152,33 L 160,28 L 168,41 L 176,30 L 184,30 L 192,30 L 200,36 L 208,47 L 216,30 L 224,28 L 232,28 L 240,40 L 240,140 L 0,140 Z" fill="url(#dd-fill)"/>
+            <path d="M 0,28 L 8,48 L 16,28 L 24,31 L 32,33 L 40,31 L 48,28 L 56,37 L 64,28 L 72,28 L 80,43 L 88,28 L 96,54 L 104,44 L 112,60 L 120,57 L 128,53 L 136,46 L 144,30 L 152,33 L 160,28 L 168,41 L 176,30 L 184,30 L 192,30 L 200,36 L 208,47 L 216,30 L 224,28 L 232,28 L 240,40" stroke="#ef4444" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+            <circle cx="112" cy="60" r="3" fill="#ef4444"/>
+            <text x="118" y="72" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="9">Max DD -12.7%</text>
           </svg>
         </div>
       </div>
       <!-- 5 · 杠杆分布 -->
       <div class="show-card">
         <div class="show-badge" data-i18n="show.badge">示例数据</div>
-        <h3 data-i18n="show.c4.t">杠杆分布</h3>
-        <p data-i18n="show.c4.d">按资金规模自动匹配 · 5 档</p>
+        <h3 data-i18n="show.c4.t">杠杆使用</h3>
+        <p data-i18n="show.c4.d">10x 固定 · 稳健档 · 100% 单一档位</p>
         <div class="show-viz">
           <svg viewBox="0 0 240 140">
-            <g>
-              <rect x="16"  y="30" width="30" height="80" fill="#f5b942" opacity="0.95" rx="1"/>
-              <rect x="60"  y="46" width="30" height="64" fill="#f5b942" opacity="0.8" rx="1"/>
-              <rect x="104" y="60" width="30" height="50" fill="#f5b942" opacity="0.65" rx="1"/>
-              <rect x="148" y="76" width="30" height="34" fill="#f5b942" opacity="0.5" rx="1"/>
-              <rect x="192" y="90" width="30" height="20" fill="#f5b942" opacity="0.4" rx="1"/>
-            </g>
+            <rect x="80" y="20" width="80" height="90" fill="#f5b942" opacity="0.9" rx="2"/>
+            <text x="120" y="72" text-anchor="middle" fill="#06090e" font-family="'JetBrains Mono',monospace" font-size="28" font-weight="700">10x</text>
             <line x1="0" y1="110" x2="240" y2="110" stroke="#1c2b40"/>
-            <g fill="#8ea0b0" font-family="'JetBrains Mono',monospace" font-size="9" text-anchor="middle">
-              <text x="31"  y="126">125x</text>
-              <text x="75"  y="126">100x</text>
-              <text x="119" y="126">75x</text>
-              <text x="163" y="126">50x</text>
-              <text x="207" y="126">25x</text>
-            </g>
+            <text x="120" y="128" text-anchor="middle" fill="#8ea0b0" font-family="'JetBrains Mono',monospace" font-size="10">309 单 / 100%</text>
           </svg>
         </div>
       </div>
@@ -677,46 +657,39 @@
   <!-- 智能动态杠杆 -->
   <div class="card leverage-card">
     <div class="sec-head">
-      <h2><span class="sec-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><circle cx="8" cy="8" r="2.3" fill="var(--bg)"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="15" cy="16" r="2.3" fill="var(--bg)"/></svg></span><span data-i18n="lev.title">智能动态杠杆 · AI 自适应</span></h2>
+      <h2><span class="sec-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><circle cx="8" cy="8" r="2.3" fill="var(--bg)"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="15" cy="16" r="2.3" fill="var(--bg)"/></svg></span><span data-i18n="lev.title">量子 AI 策略 · 10x 固定杠杆 · 20% 固定仓位</span></h2>
       <span class="note" data-i18n="lev.subtitle">按资金规模自动调节 · 大资金越保守</span>
     </div>
-    <div class="lev-intro" data-i18n="lev.intro">小资金冲刺 · 大资金稳守 · 单笔风险 3-10%</div>
+    <div class="lev-intro" data-i18n="lev.intro">10x 恒定杠杆 · 20% 固定仓位 · 单笔敞口 200% 权益 · LOSS_CAP 硬顶</div>
     <div class="lev-tiers">
       <div class="lev-tier t1">
         <div class="lev-head">
-          <span class="lev-range">≤ $1,200</span>
+          <span class="lev-range">≤ $20,000</span>
           <span class="lev-tag" data-i18n="lev.tag.sprint">冲刺</span>
         </div>
-        <div class="lev-num">125<span class="lev-x">x</span></div>
+        <div class="lev-num">10<span class="lev-x">%</span></div>
         <div class="lev-desc" data-i18n="lev.d1">起步加速</div>
       </div>
       <div class="lev-tier t2">
         <div class="lev-head">
-          <span class="lev-range">$1,200 - $5,800</span>
+          <span class="lev-range">$20,000 - $50,000</span>
         </div>
-        <div class="lev-num">100<span class="lev-x">x</span></div>
-        <div class="lev-desc" data-i18n="lev.d2">高效增长</div>
+        <div class="lev-num">7<span class="lev-x">%</span></div>
+        <div class="lev-desc" data-i18n="lev.d2">稳步扩张</div>
       </div>
       <div class="lev-tier t3">
         <div class="lev-head">
-          <span class="lev-range">$5,800 - $12,000</span>
+          <span class="lev-range">$50,000 - $100,000</span>
         </div>
-        <div class="lev-num">75<span class="lev-x">x</span></div>
-        <div class="lev-desc" data-i18n="lev.d3">均衡运行</div>
-      </div>
-      <div class="lev-tier t4">
-        <div class="lev-head">
-          <span class="lev-range">$12,000 - $58,000</span>
-        </div>
-        <div class="lev-num">50<span class="lev-x">x</span></div>
-        <div class="lev-desc" data-i18n="lev.d4">稳步扩张</div>
+        <div class="lev-num">5<span class="lev-x">%</span></div>
+        <div class="lev-desc" data-i18n="lev.d3">稳健运行</div>
       </div>
       <div class="lev-tier t5 safe">
         <div class="lev-head">
-          <span class="lev-range">$58,000+</span>
+          <span class="lev-range">$100,000+</span>
           <span class="lev-tag safe" data-i18n="lev.tag.safe">稳守</span>
         </div>
-        <div class="lev-num">25<span class="lev-x">x</span></div>
+        <div class="lev-num">3<span class="lev-x">%</span></div>
         <div class="lev-desc" data-i18n="lev.d5">大资金保守</div>
       </div>
     </div>
@@ -732,14 +705,14 @@
         <span class="lsi-icon">◇</span>
         <div>
           <div class="lsi-title" data-i18n="lev.s2.t">LOSS_CAP 硬顶</div>
-          <div class="lsi-desc" data-i18n="lev.s2.d">单笔亏损锁定 3-10% 净值</div>
+          <div class="lsi-desc" data-i18n="lev.s2.d">单笔亏损锁定 ≤10% 净值</div>
         </div>
       </div>
       <div class="lev-safety-item">
         <span class="lsi-icon">◇</span>
         <div>
           <div class="lsi-title" data-i18n="lev.s3.t">越大越安全</div>
-          <div class="lsi-desc" data-i18n="lev.s3.d">$58K+ 强制 25x, 抗极端行情</div>
+          <div class="lsi-desc" data-i18n="lev.s3.d">$100K+ 强制 3% 轻仓 · 抗极端行情</div>
         </div>
       </div>
     </div>
@@ -748,8 +721,8 @@
   <div class="grid-2">
     <div class="card">
       <div class="sec-head">
-        <h2><span class="sec-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg></span><span data-i18n="sec.equity">净值曲线 · 近 12 个月回测</span></h2>
-        <span class="note">$10,000 → $103,240 · 10.32x · 年化 932%</span>
+        <h2><span class="sec-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg></span><span data-i18n="sec.equity">净值曲线 · 近 13 个月回测</span></h2>
+        <span class="note">$10,000 → $151,545 · 15.15x · 年化 1415%</span>
       </div>
       <div class="equity-wrap">
         <svg class="equity-svg" viewBox="0 0 640 220" preserveAspectRatio="none">
@@ -757,30 +730,31 @@
           <line x1="0" y1="55" x2="640" y2="55" stroke="#1a2432" stroke-dasharray="2 5"/>
           <line x1="0" y1="110" x2="640" y2="110" stroke="#1a2432" stroke-dasharray="2 5"/>
           <line x1="0" y1="165" x2="640" y2="165" stroke="#1a2432" stroke-dasharray="2 5"/>
-          <!-- 12 points · 10x total, two pullbacks -->
-          <path d="M 0,208 L 58,196 L 116,180 L 175,164 L 233,172 L 291,154 L 349,128 L 407,102 L 465,80 L 523,88 L 582,44 L 640,12 L 640,220 L 0,220 Z" fill="url(#eq-fill)"/>
-          <path d="M 0,208 L 58,196 L 116,180 L 175,164 L 233,172 L 291,154 L 349,128 L 407,102 L 465,80 L 523,88 L 582,44 L 640,12" stroke="#f5b942" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
-          <circle cx="640" cy="12" r="4" fill="#f5b942"/>
-          <circle cx="640" cy="12" r="9" fill="#f5b942" opacity="0.28"/>
+          <!-- 14 points · log 尺度 · $10K → $140K -->
+          <path d="M 0,208 L 49,162 L 99,90 L 148,80 L 197,55 L 246,42 L 295,45 L 345,43 L 394,38 L 443,34 L 492,34 L 542,28 L 591,20 L 640,21 L 640,220 L 0,220 Z" fill="url(#eq-fill)"/>
+          <path d="M 0,208 L 49,162 L 99,90 L 148,80 L 197,55 L 246,42 L 295,45 L 345,43 L 394,38 L 443,34 L 492,34 L 542,28 L 591,20 L 640,21" stroke="#f5b942" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+          <circle cx="640" cy="21" r="4" fill="#f5b942"/>
+          <circle cx="640" cy="21" r="9" fill="#f5b942" opacity="0.28"/>
         </svg>
       </div>
-      <div class="equity-xaxis"><span>25/08</span><span>10月</span><span>12月</span><span>26/02</span><span>04月</span><span>06月</span></div>
+      <div class="equity-xaxis"><span>25/07</span><span>25/10</span><span>26/01</span><span>26/04</span><span>26/07</span></div>
     </div>
     <div class="card">
-      <div class="sec-head"><h2 data-i18n="sec.monthly">月度回报 · 12 个月</h2><span class="note">10/12 正月 · 最大月亏 -7%</span></div>
+      <div class="sec-head"><h2 data-i18n="sec.monthly">月度回报 · 13 个月</h2><span class="note">12/13 正月 · 最大月亏 -10.5%</span></div>
       <div class="month-list" style="grid-template-columns: 1fr auto auto; font-size: 12.5px;">
-        <div class="m-name">2025-08</div><div class="m-eq">$11,800</div><div class="m-ret">+18%</div>
-        <div class="m-name">2025-09</div><div class="m-eq">$14,600</div><div class="m-ret">+24%</div>
-        <div class="m-name">2025-10</div><div class="m-eq">$17,500</div><div class="m-ret">+20%</div>
-        <div class="m-name">2025-11</div><div class="m-eq">$16,200</div><div class="m-ret" style="color:var(--down)">-7%</div>
-        <div class="m-name">2025-12</div><div class="m-eq">$19,800</div><div class="m-ret">+22%</div>
-        <div class="m-name">2026-01</div><div class="m-eq">$27,500</div><div class="m-ret">+39%</div>
-        <div class="m-name">2026-02</div><div class="m-eq">$37,800</div><div class="m-ret">+37%</div>
-        <div class="m-name">2026-03</div><div class="m-eq">$47,600</div><div class="m-ret">+26%</div>
-        <div class="m-name">2026-04</div><div class="m-eq">$45,200</div><div class="m-ret" style="color:var(--down)">-5%</div>
-        <div class="m-name">2026-05</div><div class="m-eq">$67,800</div><div class="m-ret">+50%</div>
-        <div class="m-name">2026-06</div><div class="m-eq">$89,200</div><div class="m-ret">+32%</div>
-        <div class="m-name">2026-07</div><div class="m-eq">$103,240</div><div class="m-ret">+16%</div>
+        <div class="m-name">2025-07</div><div class="m-eq">$13,531</div><div class="m-ret">+35%</div>
+        <div class="m-name">2025-08</div><div class="m-eq">$25,735</div><div class="m-ret">+90%</div>
+        <div class="m-name">2025-09</div><div class="m-eq">$31,304</div><div class="m-ret">+22%</div>
+        <div class="m-name">2025-10</div><div class="m-eq">$52,512</div><div class="m-ret">+68%</div>
+        <div class="m-name">2025-11</div><div class="m-eq">$69,525</div><div class="m-ret">+32%</div>
+        <div class="m-name">2025-12</div><div class="m-eq">$62,240</div><div class="m-ret" style="color:var(--down)">-10.5%</div>
+        <div class="m-name">2026-01</div><div class="m-eq">$68,952</div><div class="m-ret">+11%</div>
+        <div class="m-name">2026-02</div><div class="m-eq">$74,634</div><div class="m-ret">+8%</div>
+        <div class="m-name">2026-03</div><div class="m-eq">$84,485</div><div class="m-ret">+13%</div>
+        <div class="m-name">2026-04</div><div class="m-eq">$85,923</div><div class="m-ret">+2%</div>
+        <div class="m-name">2026-05</div><div class="m-eq">$105,835</div><div class="m-ret">+23%</div>
+        <div class="m-name">2026-06</div><div class="m-eq">$137,427</div><div class="m-ret">+30%</div>
+        <div class="m-name">2026-07</div><div class="m-eq">$151,545</div><div class="m-ret">+10%</div>
       </div>
     </div>
   </div>

@@ -29,6 +29,23 @@
   letter-spacing: 0.14em;
   border-radius: 3px;
 }
+.kline-fallback { position:absolute; inset:0; z-index:3; background: rgba(6,12,20,0.4); }
+.fallback-note {
+  position:absolute; bottom:12px; left:50%; transform: translateX(-50%);
+  padding: 6px 14px;
+  background: rgba(245,185,66,0.15);
+  border: 1px solid rgba(245,185,66,0.4);
+  color: #f5b942;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  border-radius: 3px;
+  white-space: nowrap;
+  max-width: 95%;
+}
+@media (max-width: 600px) {
+  .fallback-note { font-size: 9.5px; padding: 4px 10px; }
+}
 @media (max-width: 600px) {
   .demo-watermark { font-size: 56px; }
 }
@@ -134,6 +151,61 @@
         <div id="lwChart" style="width:100%; height:100%;"></div>
         <div id="chartLoading" class="chart-loading">加载 K 线数据…</div>
         <div class="demo-watermark">DEMO</div>
+        <!-- Static fallback SVG (shows only when live data fails to load, e.g. mobile network blocked) -->
+        <div id="klineFallback" class="kline-fallback" style="display:none;">
+          <svg viewBox="0 0 640 500" preserveAspectRatio="none" style="width:100%; height:100%; display:block;">
+            <line x1="0" y1="80"  x2="640" y2="80"  stroke="#182230" stroke-dasharray="2 5"/>
+            <line x1="0" y1="180" x2="640" y2="180" stroke="#182230" stroke-dasharray="2 5"/>
+            <line x1="0" y1="280" x2="640" y2="280" stroke="#182230" stroke-dasharray="2 5"/>
+            <line x1="0" y1="380" x2="640" y2="380" stroke="#182230" stroke-dasharray="2 5"/>
+            <line x1="0" y1="460" x2="640" y2="460" stroke="#182230" stroke-dasharray="2 5"/>
+            <text x="632" y="84" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,820</text>
+            <text x="632" y="184" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,790</text>
+            <text x="632" y="284" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,760</text>
+            <text x="632" y="384" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,730</text>
+            <text x="632" y="464" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,700</text>
+            <g stroke-width="1" stroke-linecap="butt">
+              <line x1="16" y1="360" x2="16" y2="390" stroke="#26a69a"/><rect x="10" y="368" width="12" height="18" fill="#26a69a"/>
+              <line x1="36" y1="350" x2="36" y2="382" stroke="#26a69a"/><rect x="30" y="358" width="12" height="20" fill="#26a69a"/>
+              <line x1="56" y1="332" x2="56" y2="370" stroke="#26a69a"/><rect x="50" y="342" width="12" height="24" fill="#26a69a"/>
+              <line x1="76" y1="325" x2="76" y2="360" stroke="#ef5350"/><rect x="70" y="332" width="12" height="26" fill="#ef5350"/>
+              <line x1="96" y1="340" x2="96" y2="372" stroke="#ef5350"/><rect x="90" y="346" width="12" height="24" fill="#ef5350"/>
+              <line x1="116" y1="322" x2="116" y2="356" stroke="#26a69a"/><rect x="110" y="328" width="12" height="20" fill="#26a69a"/>
+              <line x1="136" y1="308" x2="136" y2="336" stroke="#26a69a"/><rect x="130" y="315" width="12" height="18" fill="#26a69a"/>
+              <line x1="156" y1="298" x2="156" y2="320" stroke="#26a69a"/><rect x="150" y="305" width="12" height="14" fill="#26a69a"/>
+              <line x1="176" y1="282" x2="176" y2="315" stroke="#26a69a"/><rect x="170" y="288" width="12" height="20" fill="#26a69a"/>
+              <line x1="196" y1="278" x2="196" y2="310" stroke="#ef5350"/><rect x="190" y="284" width="12" height="20" fill="#ef5350"/>
+              <line x1="216" y1="285" x2="216" y2="322" stroke="#ef5350"/><rect x="210" y="292" width="12" height="26" fill="#ef5350"/>
+              <line x1="236" y1="295" x2="236" y2="328" stroke="#ef5350"/><rect x="230" y="304" width="12" height="20" fill="#ef5350"/>
+              <line x1="256" y1="285" x2="256" y2="330" stroke="#26a69a"/><rect x="250" y="292" width="12" height="30" fill="#26a69a"/>
+              <line x1="276" y1="265" x2="276" y2="305" stroke="#26a69a"/><rect x="270" y="272" width="12" height="28" fill="#26a69a"/>
+              <line x1="296" y1="240" x2="296" y2="285" stroke="#26a69a"/><rect x="290" y="248" width="12" height="32" fill="#26a69a"/>
+              <line x1="316" y1="228" x2="316" y2="260" stroke="#26a69a"/><rect x="310" y="234" width="12" height="24" fill="#26a69a"/>
+              <line x1="336" y1="220" x2="336" y2="256" stroke="#ef5350"/><rect x="330" y="226" width="12" height="22" fill="#ef5350"/>
+              <line x1="356" y1="228" x2="356" y2="262" stroke="#ef5350"/><rect x="350" y="235" width="12" height="24" fill="#ef5350"/>
+              <line x1="376" y1="216" x2="376" y2="250" stroke="#26a69a"/><rect x="370" y="222" width="12" height="22" fill="#26a69a"/>
+              <line x1="396" y1="200" x2="396" y2="232" stroke="#26a69a"/><rect x="390" y="206" width="12" height="20" fill="#26a69a"/>
+              <line x1="416" y1="182" x2="416" y2="220" stroke="#26a69a"/><rect x="410" y="188" width="12" height="26" fill="#26a69a"/>
+              <line x1="436" y1="168" x2="436" y2="205" stroke="#26a69a"/><rect x="430" y="174" width="12" height="24" fill="#26a69a"/>
+              <line x1="456" y1="160" x2="456" y2="192" stroke="#26a69a"/><rect x="450" y="166" width="12" height="20" fill="#26a69a"/>
+              <line x1="476" y1="168" x2="476" y2="198" stroke="#ef5350"/><rect x="470" y="173" width="12" height="20" fill="#ef5350"/>
+              <line x1="496" y1="172" x2="496" y2="205" stroke="#ef5350"/><rect x="490" y="178" width="12" height="20" fill="#ef5350"/>
+              <line x1="516" y1="158" x2="516" y2="190" stroke="#26a69a"/><rect x="510" y="163" width="12" height="22" fill="#26a69a"/>
+              <line x1="536" y1="138" x2="536" y2="172" stroke="#26a69a"/><rect x="530" y="145" width="12" height="20" fill="#26a69a"/>
+              <line x1="556" y1="118" x2="556" y2="152" stroke="#26a69a"/><rect x="550" y="124" width="12" height="22" fill="#26a69a"/>
+              <line x1="576" y1="105" x2="576" y2="138" stroke="#26a69a"/><rect x="570" y="112" width="12" height="20" fill="#26a69a"/>
+              <line x1="596" y1="115" x2="596" y2="148" stroke="#ef5350"/><rect x="590" y="120" width="12" height="22" fill="#ef5350"/>
+            </g>
+            <g><path d="M 56 398 l -6 8 l 12 0 z" fill="#22c55e"/><text x="56" y="424" text-anchor="middle" fill="#22c55e" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1732</text></g>
+            <g><circle cx="176" cy="272" r="5" fill="#f5b942"/><text x="176" y="258" text-anchor="middle" fill="#f5b942" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$54</text></g>
+            <g><path d="M 216 268 l -6 -8 l 12 0 z" fill="#ef4444"/><text x="216" y="252" text-anchor="middle" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1768</text></g>
+            <g><circle cx="276" cy="288" r="5" fill="#7f8d9a"/><text x="276" y="306" text-anchor="middle" fill="#7f8d9a" font-family="'JetBrains Mono',monospace" font-size="11">SL -$14</text></g>
+            <g><path d="M 296 300 l -6 8 l 12 0 z" fill="#22c55e"/><text x="296" y="326" text-anchor="middle" fill="#22c55e" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1755</text></g>
+            <g><circle cx="476" cy="180" r="5" fill="#f5b942"/><text x="476" y="166" text-anchor="middle" fill="#f5b942" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$132</text></g>
+            <g><path d="M 496 208 l -6 -8 l 12 0 z" fill="#ef4444"/><text x="496" y="192" text-anchor="middle" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1793</text></g>
+          </svg>
+          <div class="fallback-note">网络受限 · 显示示范图 · 电脑或 VPN 环境可查看实时数据</div>
+        </div>
       </div>
       <div class="kline-legend">
         <span><span class="swatch" style="background:#22c55e"></span>Agent 开多</span>
@@ -294,19 +366,26 @@
       return M;
     }
 
+    let liveOK = false;
     loadCandles().then(rows => {
       if (!rows) {
-        loading.textContent = '数据源暂不可用';
+        // All API sources blocked (e.g. mobile network in restricted region)
+        // Fall back to static demo SVG so page never looks empty
+        loading.classList.add('hidden');
+        const fb = document.getElementById('klineFallback');
+        if (fb) fb.style.display = 'block';
         return;
       }
+      liveOK = true;
       candles.setData(rows);
       candles.setMarkers(buildMarkers(rows));
       chart.timeScale().fitContent();
       loading.classList.add('hidden');
     });
 
-    // Refresh every 60s
+    // Refresh every 60s (skip if we're on fallback already, no point retrying)
     setInterval(async () => {
+      if (!liveOK) return;
       const rows = await loadCandles();
       if (rows) {
         candles.setData(rows);

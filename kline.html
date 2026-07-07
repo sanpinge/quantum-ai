@@ -14,16 +14,16 @@
 .demo-watermark {
   position:absolute; top:50%; left:50%; transform: translate(-50%, -50%) rotate(-18deg);
   font-family: var(--font-mono); font-size: 88px; font-weight: 800;
-  color: rgba(212,165,88,0.06);
+  color: rgba(245,185,66,0.06);
   letter-spacing: 0.28em;
   z-index: 1; pointer-events: none; user-select: none;
   white-space: nowrap;
 }
 .demo-note {
   padding: 3px 10px;
-  background: rgba(212,165,88,0.12);
-  border: 1px solid rgba(212,165,88,0.4);
-  color: #d4a558 !important;
+  background: rgba(245,185,66,0.12);
+  border: 1px solid rgba(245,185,66,0.4);
+  color: #f5b942 !important;
   font-family: var(--font-mono);
   font-size: 10.5px;
   letter-spacing: 0.14em;
@@ -33,9 +33,9 @@
 .fallback-note {
   position:absolute; bottom:12px; left:50%; transform: translateX(-50%);
   padding: 6px 14px;
-  background: rgba(212,165,88,0.15);
-  border: 1px solid rgba(212,165,88,0.4);
-  color: #d4a558;
+  background: rgba(245,185,66,0.15);
+  border: 1px solid rgba(245,185,66,0.4);
+  color: #f5b942;
   font-family: var(--font-mono);
   font-size: 10.5px;
   letter-spacing: 0.06em;
@@ -61,8 +61,8 @@
 .pos-title h3 { margin:0; font-family:var(--font-mono); font-size:12px; letter-spacing:0.16em; text-transform:uppercase; font-weight:600; }
 .pos-title .status { font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em; color: var(--tech); }
 .pos-badge { display:inline-block; padding:3px 10px; font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:16px; }
-.pos-badge.L { background: rgba(107,178,138,0.12); color: var(--up); border:1px solid rgba(107,178,138,0.35); }
-.pos-badge.S { background: rgba(212,115,112,0.12); color: var(--down); border:1px solid rgba(212,115,112,0.35); }
+.pos-badge.L { background: rgba(34,197,94,0.12); color: var(--up); border:1px solid rgba(34,197,94,0.35); }
+.pos-badge.S { background: rgba(239,68,68,0.12); color: var(--down); border:1px solid rgba(239,68,68,0.35); }
 .pos-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px 20px; font-family:var(--font-mono); font-size:13px; }
 .pos-grid .k { color:var(--text-dim); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; }
 .pos-grid .v { color: var(--text); font-variant-numeric: tabular-nums; font-size:16px; font-weight:500; }
@@ -84,8 +84,8 @@
 .sig-row .r1 .conf-badge b { color: var(--tech); font-weight:500; }
 .sig-row .r2 { display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px; color: var(--text-muted); letter-spacing:0.04em; }
 .sig-row .r2 .dir { padding:1px 8px; font-size:10.5px; letter-spacing:0.1em; }
-.sig-row .r2 .dir.L { background: rgba(107,178,138,0.12); color: var(--up); }
-.sig-row .r2 .dir.S { background: rgba(212,115,112,0.12); color: var(--down); }
+.sig-row .r2 .dir.L { background: rgba(34,197,94,0.12); color: var(--up); }
+.sig-row .r2 .dir.S { background: rgba(239,68,68,0.12); color: var(--down); }
 .sig-row .r2 .time { color: var(--text-dim); }
 
 @media (max-width: 960px) {
@@ -112,13 +112,13 @@
     <div class="brand">
       <div class="brand-mark">
         <svg viewBox="0 0 42 42" fill="none">
-          <circle cx="21" cy="21" r="17" stroke="#d4a558" stroke-width="1.2"/>
-          <circle cx="21" cy="21" r="10" stroke="#7dbdb0" stroke-width="0.9" opacity="0.7"/>
-          <circle cx="21" cy="21" r="3" fill="#d4a558"/>
-          <line x1="21" y1="4"  x2="21" y2="10" stroke="#7dbdb0" stroke-width="0.7"/>
-          <line x1="21" y1="32" x2="21" y2="38" stroke="#7dbdb0" stroke-width="0.7"/>
-          <line x1="4"  y1="21" x2="10" y2="21" stroke="#7dbdb0" stroke-width="0.7"/>
-          <line x1="32" y1="21" x2="38" y2="21" stroke="#7dbdb0" stroke-width="0.7"/>
+          <circle cx="21" cy="21" r="17" stroke="#f5b942" stroke-width="1.2"/>
+          <circle cx="21" cy="21" r="10" stroke="#5eead4" stroke-width="0.9" opacity="0.7"/>
+          <circle cx="21" cy="21" r="3" fill="#f5b942"/>
+          <line x1="21" y1="4"  x2="21" y2="10" stroke="#5eead4" stroke-width="0.7"/>
+          <line x1="21" y1="32" x2="21" y2="38" stroke="#5eead4" stroke-width="0.7"/>
+          <line x1="4"  y1="21" x2="10" y2="21" stroke="#5eead4" stroke-width="0.7"/>
+          <line x1="32" y1="21" x2="38" y2="21" stroke="#5eead4" stroke-width="0.7"/>
         </svg>
       </div>
       <div class="brand-text">
@@ -165,52 +165,52 @@
             <text x="632" y="384" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,730</text>
             <text x="632" y="464" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,700</text>
             <g stroke-width="1" stroke-linecap="butt">
-              <line x1="16" y1="360" x2="16" y2="390" stroke="#4d9a89"/><rect x="10" y="368" width="12" height="18" fill="#4d9a89"/>
-              <line x1="36" y1="350" x2="36" y2="382" stroke="#4d9a89"/><rect x="30" y="358" width="12" height="20" fill="#4d9a89"/>
-              <line x1="56" y1="332" x2="56" y2="370" stroke="#4d9a89"/><rect x="50" y="342" width="12" height="24" fill="#4d9a89"/>
-              <line x1="76" y1="325" x2="76" y2="360" stroke="#c66d68"/><rect x="70" y="332" width="12" height="26" fill="#c66d68"/>
-              <line x1="96" y1="340" x2="96" y2="372" stroke="#c66d68"/><rect x="90" y="346" width="12" height="24" fill="#c66d68"/>
-              <line x1="116" y1="322" x2="116" y2="356" stroke="#4d9a89"/><rect x="110" y="328" width="12" height="20" fill="#4d9a89"/>
-              <line x1="136" y1="308" x2="136" y2="336" stroke="#4d9a89"/><rect x="130" y="315" width="12" height="18" fill="#4d9a89"/>
-              <line x1="156" y1="298" x2="156" y2="320" stroke="#4d9a89"/><rect x="150" y="305" width="12" height="14" fill="#4d9a89"/>
-              <line x1="176" y1="282" x2="176" y2="315" stroke="#4d9a89"/><rect x="170" y="288" width="12" height="20" fill="#4d9a89"/>
-              <line x1="196" y1="278" x2="196" y2="310" stroke="#c66d68"/><rect x="190" y="284" width="12" height="20" fill="#c66d68"/>
-              <line x1="216" y1="285" x2="216" y2="322" stroke="#c66d68"/><rect x="210" y="292" width="12" height="26" fill="#c66d68"/>
-              <line x1="236" y1="295" x2="236" y2="328" stroke="#c66d68"/><rect x="230" y="304" width="12" height="20" fill="#c66d68"/>
-              <line x1="256" y1="285" x2="256" y2="330" stroke="#4d9a89"/><rect x="250" y="292" width="12" height="30" fill="#4d9a89"/>
-              <line x1="276" y1="265" x2="276" y2="305" stroke="#4d9a89"/><rect x="270" y="272" width="12" height="28" fill="#4d9a89"/>
-              <line x1="296" y1="240" x2="296" y2="285" stroke="#4d9a89"/><rect x="290" y="248" width="12" height="32" fill="#4d9a89"/>
-              <line x1="316" y1="228" x2="316" y2="260" stroke="#4d9a89"/><rect x="310" y="234" width="12" height="24" fill="#4d9a89"/>
-              <line x1="336" y1="220" x2="336" y2="256" stroke="#c66d68"/><rect x="330" y="226" width="12" height="22" fill="#c66d68"/>
-              <line x1="356" y1="228" x2="356" y2="262" stroke="#c66d68"/><rect x="350" y="235" width="12" height="24" fill="#c66d68"/>
-              <line x1="376" y1="216" x2="376" y2="250" stroke="#4d9a89"/><rect x="370" y="222" width="12" height="22" fill="#4d9a89"/>
-              <line x1="396" y1="200" x2="396" y2="232" stroke="#4d9a89"/><rect x="390" y="206" width="12" height="20" fill="#4d9a89"/>
-              <line x1="416" y1="182" x2="416" y2="220" stroke="#4d9a89"/><rect x="410" y="188" width="12" height="26" fill="#4d9a89"/>
-              <line x1="436" y1="168" x2="436" y2="205" stroke="#4d9a89"/><rect x="430" y="174" width="12" height="24" fill="#4d9a89"/>
-              <line x1="456" y1="160" x2="456" y2="192" stroke="#4d9a89"/><rect x="450" y="166" width="12" height="20" fill="#4d9a89"/>
-              <line x1="476" y1="168" x2="476" y2="198" stroke="#c66d68"/><rect x="470" y="173" width="12" height="20" fill="#c66d68"/>
-              <line x1="496" y1="172" x2="496" y2="205" stroke="#c66d68"/><rect x="490" y="178" width="12" height="20" fill="#c66d68"/>
-              <line x1="516" y1="158" x2="516" y2="190" stroke="#4d9a89"/><rect x="510" y="163" width="12" height="22" fill="#4d9a89"/>
-              <line x1="536" y1="138" x2="536" y2="172" stroke="#4d9a89"/><rect x="530" y="145" width="12" height="20" fill="#4d9a89"/>
-              <line x1="556" y1="118" x2="556" y2="152" stroke="#4d9a89"/><rect x="550" y="124" width="12" height="22" fill="#4d9a89"/>
-              <line x1="576" y1="105" x2="576" y2="138" stroke="#4d9a89"/><rect x="570" y="112" width="12" height="20" fill="#4d9a89"/>
-              <line x1="596" y1="115" x2="596" y2="148" stroke="#c66d68"/><rect x="590" y="120" width="12" height="22" fill="#c66d68"/>
+              <line x1="16" y1="360" x2="16" y2="390" stroke="#26a69a"/><rect x="10" y="368" width="12" height="18" fill="#26a69a"/>
+              <line x1="36" y1="350" x2="36" y2="382" stroke="#26a69a"/><rect x="30" y="358" width="12" height="20" fill="#26a69a"/>
+              <line x1="56" y1="332" x2="56" y2="370" stroke="#26a69a"/><rect x="50" y="342" width="12" height="24" fill="#26a69a"/>
+              <line x1="76" y1="325" x2="76" y2="360" stroke="#ef5350"/><rect x="70" y="332" width="12" height="26" fill="#ef5350"/>
+              <line x1="96" y1="340" x2="96" y2="372" stroke="#ef5350"/><rect x="90" y="346" width="12" height="24" fill="#ef5350"/>
+              <line x1="116" y1="322" x2="116" y2="356" stroke="#26a69a"/><rect x="110" y="328" width="12" height="20" fill="#26a69a"/>
+              <line x1="136" y1="308" x2="136" y2="336" stroke="#26a69a"/><rect x="130" y="315" width="12" height="18" fill="#26a69a"/>
+              <line x1="156" y1="298" x2="156" y2="320" stroke="#26a69a"/><rect x="150" y="305" width="12" height="14" fill="#26a69a"/>
+              <line x1="176" y1="282" x2="176" y2="315" stroke="#26a69a"/><rect x="170" y="288" width="12" height="20" fill="#26a69a"/>
+              <line x1="196" y1="278" x2="196" y2="310" stroke="#ef5350"/><rect x="190" y="284" width="12" height="20" fill="#ef5350"/>
+              <line x1="216" y1="285" x2="216" y2="322" stroke="#ef5350"/><rect x="210" y="292" width="12" height="26" fill="#ef5350"/>
+              <line x1="236" y1="295" x2="236" y2="328" stroke="#ef5350"/><rect x="230" y="304" width="12" height="20" fill="#ef5350"/>
+              <line x1="256" y1="285" x2="256" y2="330" stroke="#26a69a"/><rect x="250" y="292" width="12" height="30" fill="#26a69a"/>
+              <line x1="276" y1="265" x2="276" y2="305" stroke="#26a69a"/><rect x="270" y="272" width="12" height="28" fill="#26a69a"/>
+              <line x1="296" y1="240" x2="296" y2="285" stroke="#26a69a"/><rect x="290" y="248" width="12" height="32" fill="#26a69a"/>
+              <line x1="316" y1="228" x2="316" y2="260" stroke="#26a69a"/><rect x="310" y="234" width="12" height="24" fill="#26a69a"/>
+              <line x1="336" y1="220" x2="336" y2="256" stroke="#ef5350"/><rect x="330" y="226" width="12" height="22" fill="#ef5350"/>
+              <line x1="356" y1="228" x2="356" y2="262" stroke="#ef5350"/><rect x="350" y="235" width="12" height="24" fill="#ef5350"/>
+              <line x1="376" y1="216" x2="376" y2="250" stroke="#26a69a"/><rect x="370" y="222" width="12" height="22" fill="#26a69a"/>
+              <line x1="396" y1="200" x2="396" y2="232" stroke="#26a69a"/><rect x="390" y="206" width="12" height="20" fill="#26a69a"/>
+              <line x1="416" y1="182" x2="416" y2="220" stroke="#26a69a"/><rect x="410" y="188" width="12" height="26" fill="#26a69a"/>
+              <line x1="436" y1="168" x2="436" y2="205" stroke="#26a69a"/><rect x="430" y="174" width="12" height="24" fill="#26a69a"/>
+              <line x1="456" y1="160" x2="456" y2="192" stroke="#26a69a"/><rect x="450" y="166" width="12" height="20" fill="#26a69a"/>
+              <line x1="476" y1="168" x2="476" y2="198" stroke="#ef5350"/><rect x="470" y="173" width="12" height="20" fill="#ef5350"/>
+              <line x1="496" y1="172" x2="496" y2="205" stroke="#ef5350"/><rect x="490" y="178" width="12" height="20" fill="#ef5350"/>
+              <line x1="516" y1="158" x2="516" y2="190" stroke="#26a69a"/><rect x="510" y="163" width="12" height="22" fill="#26a69a"/>
+              <line x1="536" y1="138" x2="536" y2="172" stroke="#26a69a"/><rect x="530" y="145" width="12" height="20" fill="#26a69a"/>
+              <line x1="556" y1="118" x2="556" y2="152" stroke="#26a69a"/><rect x="550" y="124" width="12" height="22" fill="#26a69a"/>
+              <line x1="576" y1="105" x2="576" y2="138" stroke="#26a69a"/><rect x="570" y="112" width="12" height="20" fill="#26a69a"/>
+              <line x1="596" y1="115" x2="596" y2="148" stroke="#ef5350"/><rect x="590" y="120" width="12" height="22" fill="#ef5350"/>
             </g>
-            <g><path d="M 56 398 l -6 8 l 12 0 z" fill="#6bb28a"/><text x="56" y="424" text-anchor="middle" fill="#6bb28a" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1732</text></g>
-            <g><circle cx="176" cy="272" r="5" fill="#d4a558"/><text x="176" y="258" text-anchor="middle" fill="#d4a558" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$54</text></g>
-            <g><path d="M 216 268 l -6 -8 l 12 0 z" fill="#d47370"/><text x="216" y="252" text-anchor="middle" fill="#d47370" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1768</text></g>
+            <g><path d="M 56 398 l -6 8 l 12 0 z" fill="#22c55e"/><text x="56" y="424" text-anchor="middle" fill="#22c55e" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1732</text></g>
+            <g><circle cx="176" cy="272" r="5" fill="#f5b942"/><text x="176" y="258" text-anchor="middle" fill="#f5b942" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$54</text></g>
+            <g><path d="M 216 268 l -6 -8 l 12 0 z" fill="#ef4444"/><text x="216" y="252" text-anchor="middle" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1768</text></g>
             <g><circle cx="276" cy="288" r="5" fill="#7f8d9a"/><text x="276" y="306" text-anchor="middle" fill="#7f8d9a" font-family="'JetBrains Mono',monospace" font-size="11">SL -$14</text></g>
-            <g><path d="M 296 300 l -6 8 l 12 0 z" fill="#6bb28a"/><text x="296" y="326" text-anchor="middle" fill="#6bb28a" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1755</text></g>
-            <g><circle cx="476" cy="180" r="5" fill="#d4a558"/><text x="476" y="166" text-anchor="middle" fill="#d4a558" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$132</text></g>
-            <g><path d="M 496 208 l -6 -8 l 12 0 z" fill="#d47370"/><text x="496" y="192" text-anchor="middle" fill="#d47370" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1793</text></g>
+            <g><path d="M 296 300 l -6 8 l 12 0 z" fill="#22c55e"/><text x="296" y="326" text-anchor="middle" fill="#22c55e" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1755</text></g>
+            <g><circle cx="476" cy="180" r="5" fill="#f5b942"/><text x="476" y="166" text-anchor="middle" fill="#f5b942" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$132</text></g>
+            <g><path d="M 496 208 l -6 -8 l 12 0 z" fill="#ef4444"/><text x="496" y="192" text-anchor="middle" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1793</text></g>
           </svg>
           <div class="fallback-note">网络受限 · 显示示范图 · 电脑或 VPN 环境可查看实时数据</div>
         </div>
       </div>
       <div class="kline-legend">
-        <span><span class="swatch" style="background:#6bb28a"></span>Agent 开多</span>
-        <span><span class="swatch" style="background:#d47370"></span>Agent 开空</span>
-        <span><span class="swatch" style="background:#d4a558;border-radius:50%"></span>盈利平仓</span>
+        <span><span class="swatch" style="background:#22c55e"></span>Agent 开多</span>
+        <span><span class="swatch" style="background:#ef4444"></span>Agent 开空</span>
+        <span><span class="swatch" style="background:#f5b942;border-radius:50%"></span>盈利平仓</span>
         <span><span class="swatch" style="background:#7f8d9a;border-radius:50%"></span>止损</span>
         <span style="color:var(--text-dim); margin-left:auto;">数据源: OKX · 15m · 实时</span>
       </div>
@@ -319,9 +319,9 @@
       crosshair: { mode: 1 },
     });
     const candles = chart.addCandlestickSeries({
-      upColor: '#6bb28a', downColor: '#d47370',
-      borderUpColor: '#6bb28a', borderDownColor: '#d47370',
-      wickUpColor: '#6bb28a', wickDownColor: '#d47370',
+      upColor: '#22c55e', downColor: '#ef4444',
+      borderUpColor: '#22c55e', borderDownColor: '#ef4444',
+      wickUpColor: '#22c55e', wickDownColor: '#ef4444',
     });
 
     // Fetch OKX 15m klines (public, CORS-friendly, not geo-blocked for user)
@@ -359,9 +359,9 @@
       const M = [];
       // 挑几根 K 线作为示范信号 (在低点开多 / 高点开空 / 平仓)
       const p = (idx) => rows[Math.max(0, Math.min(n-1, idx))];
-      const openLong  = (idx, label) => ({ time: p(idx).time, position:'belowBar', color:'#6bb28a', shape:'arrowUp',   text: label });
-      const closeWin  = (idx, pnl)   => ({ time: p(idx).time, position:'aboveBar', color:'#d4a558', shape:'circle',    text: '平 ' + pnl });
-      const openShort = (idx, label) => ({ time: p(idx).time, position:'aboveBar', color:'#d47370', shape:'arrowDown', text: label });
+      const openLong  = (idx, label) => ({ time: p(idx).time, position:'belowBar', color:'#22c55e', shape:'arrowUp',   text: label });
+      const closeWin  = (idx, pnl)   => ({ time: p(idx).time, position:'aboveBar', color:'#f5b942', shape:'circle',    text: '平 ' + pnl });
+      const openShort = (idx, label) => ({ time: p(idx).time, position:'aboveBar', color:'#ef4444', shape:'arrowDown', text: label });
       const stopLoss  = (idx, pnl)   => ({ time: p(idx).time, position:'belowBar', color:'#7f8d9a', shape:'circle',    text: 'SL ' + pnl });
 
       // 找几个局部极值放标记 (简单启发, 不是真信号)

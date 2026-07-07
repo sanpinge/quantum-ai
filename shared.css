@@ -265,7 +265,25 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.14em;
 }
 
-/* 实时价格徽章 */
+/* TradingView Single Ticker widget · 顶部实时价格 */
+.tv-ticker {
+  display: inline-flex;
+  align-items: center;
+  width: 200px;
+  height: 70px;
+  overflow: hidden;
+  border-radius: 6px;
+}
+.tv-ticker .tradingview-widget-container,
+.tv-ticker .tradingview-widget-container__widget {
+  width: 100%;
+  height: 100%;
+}
+@media (max-width: 600px) {
+  .tv-ticker { width: 160px; height: 60px; }
+}
+
+/* 实时价格徽章 (deprecated, 保留兼容) */
 .eth-price {
   display: inline-flex;
   align-items: center;

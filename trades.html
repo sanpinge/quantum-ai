@@ -119,7 +119,14 @@ table.trades { width:100%; border-collapse:collapse; font-family:var(--font-mono
     </div>
     <div class="top-meta">
       <div class="lang-switcher"></div>
-      <span class="eth-price" id="ethPrice"><span class="lbl">ETH</span><span id="ethPriceVal">$----</span><span class="arrow" id="ethArrow"></span></span>
+      <div class="tv-ticker">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embed/widget-single-quote.js" async>
+          {"symbol":"BINANCE:ETHUSDT","width":"200","height":"70","colorTheme":"dark","isTransparent":true,"locale":"en"}
+          </script>
+        </div>
+      </div>
       <span class="live-badge"><span class="dot"></span>LIVE</span>
       <span id="clock">--:--</span>
     </div>
@@ -297,59 +304,6 @@ table.trades { width:100%; border-collapse:collapse; font-family:var(--font-mono
     });
   });
 </script>
-<script src="i18n.js">
-  // ═══ Live ETH price · 5-API fallback ═══
-  let _lastEthPrice = null;
-  const _apis = [
-    { name: 'OKX', url: 'https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT', parse: d => parseFloat(d.data[0].last) },
-    { name: 'Coinbase', url: 'https://api.coinbase.com/v2/prices/ETH-USD/spot', parse: d => parseFloat(d.data.amount) },
-    { name: 'CoinGecko', url: 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd', parse: d => parseFloat(d.ethereum.usd) },
-    { name: 'BinanceUS', url: 'https://api.binance.us/api/v3/ticker/price?symbol=ETHUSDT', parse: d => parseFloat(d.price) },
-    { name: 'Kraken', url: 'https://api.kraken.com/0/public/Ticker?pair=ETHUSDT', parse: d => parseFloat(d.result.ETHUSDT.c[0]) }
-  ];
-  async function fetchEthPrice() {
-    const el = document.getElementById('ethPrice');
-    const val = document.getElementById('ethPriceVal');
-    const arrow = document.getElementById('ethArrow');
-    if (!el || !val) return;
-    let p = null;
-    for (const api of _apis) {
-      try {
-        const r = await fetch(api.url);
-        if (!r.ok) continue;
-        const d = await r.json();
-        const parsed = api.parse(d);
-        if (parsed && !isNaN(parsed) && parsed > 0) { p = parsed; console.log('[ETH price] via ' + api.name + ': $' + p); break; }
-      } catch(e) { console.warn('[ETH price] ' + api.name + ' failed:', e.message); }
-    }
-    if (p === null || isNaN(p)) {
-      val.textContent = '$--';
-      arrow.textContent = '';
-      el.classList.remove('up','down');
-      el.title = 'Price feed unavailable';
-      return;
-    }
-    val.textContent = '$' + p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    el.title = '';
-    if (_lastEthPrice !== null) {
-      const diff = p - _lastEthPrice;
-      if (Math.abs(diff) >= 0.01) {
-        el.classList.remove('flash-up', 'flash-down', 'up', 'down');
-        void el.offsetWidth;
-        if (diff > 0) { el.classList.add('up', 'flash-up'); arrow.textContent = '▲'; }
-        else          { el.classList.add('down', 'flash-down'); arrow.textContent = '▼'; }
-      }
-    } else {
-      el.classList.add('up');
-      arrow.textContent = '▲';
-    }
-    _lastEthPrice = p;
-  }
-  fetchEthPrice();
-  setInterval(fetchEthPrice, 10000);
-
-
-
-</script>
+<script src="i18n.js"></script>
 </body>
 </html>

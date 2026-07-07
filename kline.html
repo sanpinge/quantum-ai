@@ -8,8 +8,9 @@
 <style>
 .kline-layout { display:grid; grid-template-columns: 1fr 320px; gap:20px; margin-bottom:24px; }
 .kline-card { padding: 22px 24px 14px; }
-.kline-wrap { height: 500px; position:relative; margin-top:6px; }
-.kline-svg { width:100%; height:100%; display:block; }
+.kline-wrap { height: 500px; position:relative; margin-top:6px; background: rgba(6,12,20,0.4); border: 1px solid var(--border); border-radius: 4px; overflow:hidden; }
+.chart-loading { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:12px; color:var(--text-dim); letter-spacing:0.1em; z-index:2; pointer-events:none; }
+.chart-loading.hidden { display:none; }
 .kline-legend { display:flex; gap:20px; margin-top:12px; font-family:var(--font-mono); font-size:10.5px; color:var(--text-muted); letter-spacing:0.06em; flex-wrap:wrap; }
 .kline-legend .swatch { display:inline-block; width:8px; height:8px; margin-right:6px; vertical-align:middle; }
 
@@ -95,7 +96,14 @@
     </div>
     <div class="top-meta">
       <div class="lang-switcher"></div>
-      <span class="eth-price" id="ethPrice"><span class="lbl">ETH</span><span id="ethPriceVal">$----</span><span class="arrow" id="ethArrow"></span></span>
+      <div class="tv-ticker">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embed/widget-single-quote.js" async>
+          {"symbol":"BINANCE:ETHUSDT","width":"200","height":"70","colorTheme":"dark","isTransparent":true,"locale":"en"}
+          </script>
+        </div>
+      </div>
       <span class="live-badge"><span class="dot"></span>LIVE</span>
       <span id="clock">--:--</span>
     </div>
@@ -109,70 +117,15 @@
         <span class="note">最近 30 根 · 自主决策</span>
       </div>
       <div class="kline-wrap">
-        <svg class="kline-svg" viewBox="0 0 640 500" preserveAspectRatio="none">
-          <line x1="0" y1="80"  x2="640" y2="80"  stroke="#182230" stroke-dasharray="2 5"/>
-          <line x1="0" y1="180" x2="640" y2="180" stroke="#182230" stroke-dasharray="2 5"/>
-          <line x1="0" y1="280" x2="640" y2="280" stroke="#182230" stroke-dasharray="2 5"/>
-          <line x1="0" y1="380" x2="640" y2="380" stroke="#182230" stroke-dasharray="2 5"/>
-          <line x1="0" y1="460" x2="640" y2="460" stroke="#182230" stroke-dasharray="2 5"/>
-
-          <text x="632" y="84" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,820</text>
-          <text x="632" y="184" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,790</text>
-          <text x="632" y="284" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,760</text>
-          <text x="632" y="384" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,730</text>
-          <text x="632" y="464" text-anchor="end" fill="#4a5867" font-family="'JetBrains Mono',monospace" font-size="10">$1,700</text>
-
-          <g stroke-width="1" stroke-linecap="butt">
-            <line x1="16" y1="360" x2="16" y2="390" stroke="#26a69a"/><rect x="10" y="368" width="12" height="18" fill="#26a69a"/>
-            <line x1="36" y1="350" x2="36" y2="382" stroke="#26a69a"/><rect x="30" y="358" width="12" height="20" fill="#26a69a"/>
-            <line x1="56" y1="332" x2="56" y2="370" stroke="#26a69a"/><rect x="50" y="342" width="12" height="24" fill="#26a69a"/>
-            <line x1="76" y1="325" x2="76" y2="360" stroke="#ef5350"/><rect x="70" y="332" width="12" height="26" fill="#ef5350"/>
-            <line x1="96" y1="340" x2="96" y2="372" stroke="#ef5350"/><rect x="90" y="346" width="12" height="24" fill="#ef5350"/>
-            <line x1="116" y1="322" x2="116" y2="356" stroke="#26a69a"/><rect x="110" y="328" width="12" height="20" fill="#26a69a"/>
-            <line x1="136" y1="308" x2="136" y2="336" stroke="#26a69a"/><rect x="130" y="315" width="12" height="18" fill="#26a69a"/>
-            <line x1="156" y1="298" x2="156" y2="320" stroke="#26a69a"/><rect x="150" y="305" width="12" height="14" fill="#26a69a"/>
-            <line x1="176" y1="282" x2="176" y2="315" stroke="#26a69a"/><rect x="170" y="288" width="12" height="20" fill="#26a69a"/>
-            <line x1="196" y1="278" x2="196" y2="310" stroke="#ef5350"/><rect x="190" y="284" width="12" height="20" fill="#ef5350"/>
-            <line x1="216" y1="285" x2="216" y2="322" stroke="#ef5350"/><rect x="210" y="292" width="12" height="26" fill="#ef5350"/>
-            <line x1="236" y1="295" x2="236" y2="328" stroke="#ef5350"/><rect x="230" y="304" width="12" height="20" fill="#ef5350"/>
-            <line x1="256" y1="285" x2="256" y2="330" stroke="#26a69a"/><rect x="250" y="292" width="12" height="30" fill="#26a69a"/>
-            <line x1="276" y1="265" x2="276" y2="305" stroke="#26a69a"/><rect x="270" y="272" width="12" height="28" fill="#26a69a"/>
-            <line x1="296" y1="240" x2="296" y2="285" stroke="#26a69a"/><rect x="290" y="248" width="12" height="32" fill="#26a69a"/>
-            <line x1="316" y1="228" x2="316" y2="260" stroke="#26a69a"/><rect x="310" y="234" width="12" height="24" fill="#26a69a"/>
-            <line x1="336" y1="220" x2="336" y2="256" stroke="#ef5350"/><rect x="330" y="226" width="12" height="22" fill="#ef5350"/>
-            <line x1="356" y1="228" x2="356" y2="262" stroke="#ef5350"/><rect x="350" y="235" width="12" height="24" fill="#ef5350"/>
-            <line x1="376" y1="216" x2="376" y2="250" stroke="#26a69a"/><rect x="370" y="222" width="12" height="22" fill="#26a69a"/>
-            <line x1="396" y1="200" x2="396" y2="232" stroke="#26a69a"/><rect x="390" y="206" width="12" height="20" fill="#26a69a"/>
-            <line x1="416" y1="182" x2="416" y2="220" stroke="#26a69a"/><rect x="410" y="188" width="12" height="26" fill="#26a69a"/>
-            <line x1="436" y1="168" x2="436" y2="205" stroke="#26a69a"/><rect x="430" y="174" width="12" height="24" fill="#26a69a"/>
-            <line x1="456" y1="160" x2="456" y2="192" stroke="#26a69a"/><rect x="450" y="166" width="12" height="20" fill="#26a69a"/>
-            <line x1="476" y1="168" x2="476" y2="198" stroke="#ef5350"/><rect x="470" y="173" width="12" height="20" fill="#ef5350"/>
-            <line x1="496" y1="172" x2="496" y2="205" stroke="#ef5350"/><rect x="490" y="178" width="12" height="20" fill="#ef5350"/>
-            <line x1="516" y1="158" x2="516" y2="190" stroke="#26a69a"/><rect x="510" y="163" width="12" height="22" fill="#26a69a"/>
-            <line x1="536" y1="138" x2="536" y2="172" stroke="#26a69a"/><rect x="530" y="145" width="12" height="20" fill="#26a69a"/>
-            <line x1="556" y1="118" x2="556" y2="152" stroke="#26a69a"/><rect x="550" y="124" width="12" height="22" fill="#26a69a"/>
-            <line x1="576" y1="105" x2="576" y2="138" stroke="#26a69a"/><rect x="570" y="112" width="12" height="20" fill="#26a69a"/>
-            <line x1="596" y1="115" x2="596" y2="148" stroke="#ef5350"/><rect x="590" y="120" width="12" height="22" fill="#ef5350"/>
-          </g>
-
-          <g><path d="M 56 398 l -6 8 l 12 0 z" fill="#22c55e"/><text x="56" y="424" text-anchor="middle" fill="#22c55e" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1732</text></g>
-          <g><circle cx="176" cy="272" r="5" fill="#f5b942"/><text x="176" y="258" text-anchor="middle" fill="#f5b942" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$54</text></g>
-          <g><path d="M 216 268 l -6 -8 l 12 0 z" fill="#ef4444"/><text x="216" y="252" text-anchor="middle" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1768</text></g>
-          <g><circle cx="276" cy="288" r="5" fill="#7f8d9a"/><text x="276" y="306" text-anchor="middle" fill="#7f8d9a" font-family="'JetBrains Mono',monospace" font-size="11">SL -$14</text></g>
-          <g><path d="M 296 300 l -6 8 l 12 0 z" fill="#22c55e"/><text x="296" y="326" text-anchor="middle" fill="#22c55e" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">多 $1755</text></g>
-          <g><circle cx="476" cy="180" r="5" fill="#f5b942"/><text x="476" y="166" text-anchor="middle" fill="#f5b942" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600">+$132</text></g>
-          <g><path d="M 496 208 l -6 -8 l 12 0 z" fill="#ef4444"/><text x="496" y="192" text-anchor="middle" fill="#ef4444" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="500">空 $1793</text></g>
-          <line x1="0" y1="126" x2="640" y2="126" stroke="#f5b942" stroke-dasharray="4 4" stroke-width="0.8" opacity="0.5"/>
-          <rect x="596" y="117" width="44" height="18" fill="#f5b942"/>
-          <text x="618" y="130" text-anchor="middle" fill="#06090e" font-family="'JetBrains Mono',monospace" font-size="10" font-weight="700">$1798</text>
-        </svg>
+        <div id="lwChart" style="width:100%; height:100%;"></div>
+        <div id="chartLoading" class="chart-loading">加载 K 线数据…</div>
       </div>
       <div class="kline-legend">
         <span><span class="swatch" style="background:#22c55e"></span>Agent 开多</span>
         <span><span class="swatch" style="background:#ef4444"></span>Agent 开空</span>
         <span><span class="swatch" style="background:#f5b942;border-radius:50%"></span>盈利平仓</span>
         <span><span class="swatch" style="background:#7f8d9a;border-radius:50%"></span>止损</span>
-        <span><span class="swatch" style="background:#f5b942"></span>当前市价</span>
+        <span style="color:var(--text-dim); margin-left:auto;">数据源: OKX · 15m · 实时</span>
       </div>
     </div>
 
@@ -242,59 +195,111 @@
   }
   tick(); setInterval(tick, 30000);
 </script>
-<script src="i18n.js">
-  // ═══ Live ETH price · 5-API fallback ═══
-  let _lastEthPrice = null;
-  const _apis = [
-    { name: 'OKX', url: 'https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT', parse: d => parseFloat(d.data[0].last) },
-    { name: 'Coinbase', url: 'https://api.coinbase.com/v2/prices/ETH-USD/spot', parse: d => parseFloat(d.data.amount) },
-    { name: 'CoinGecko', url: 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd', parse: d => parseFloat(d.ethereum.usd) },
-    { name: 'BinanceUS', url: 'https://api.binance.us/api/v3/ticker/price?symbol=ETHUSDT', parse: d => parseFloat(d.price) },
-    { name: 'Kraken', url: 'https://api.kraken.com/0/public/Ticker?pair=ETHUSDT', parse: d => parseFloat(d.result.ETHUSDT.c[0]) }
-  ];
-  async function fetchEthPrice() {
-    const el = document.getElementById('ethPrice');
-    const val = document.getElementById('ethPriceVal');
-    const arrow = document.getElementById('ethArrow');
-    if (!el || !val) return;
-    let p = null;
-    for (const api of _apis) {
-      try {
-        const r = await fetch(api.url);
-        if (!r.ok) continue;
-        const d = await r.json();
-        const parsed = api.parse(d);
-        if (parsed && !isNaN(parsed) && parsed > 0) { p = parsed; console.log('[ETH price] via ' + api.name + ': $' + p); break; }
-      } catch(e) { console.warn('[ETH price] ' + api.name + ' failed:', e.message); }
-    }
-    if (p === null || isNaN(p)) {
-      val.textContent = '$--';
-      arrow.textContent = '';
-      el.classList.remove('up','down');
-      el.title = 'Price feed unavailable';
+<script src="i18n.js"></script>
+
+<!-- Lightweight Charts (TradingView 出品免费开源) -->
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<script>
+  (function initKline() {
+    const container = document.getElementById('lwChart');
+    const loading = document.getElementById('chartLoading');
+    if (!container || !window.LightweightCharts) {
+      if (loading) loading.textContent = '图表库加载失败';
       return;
     }
-    val.textContent = '$' + p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    el.title = '';
-    if (_lastEthPrice !== null) {
-      const diff = p - _lastEthPrice;
-      if (Math.abs(diff) >= 0.01) {
-        el.classList.remove('flash-up', 'flash-down', 'up', 'down');
-        void el.offsetWidth;
-        if (diff > 0) { el.classList.add('up', 'flash-up'); arrow.textContent = '▲'; }
-        else          { el.classList.add('down', 'flash-down'); arrow.textContent = '▼'; }
+
+    const chart = LightweightCharts.createChart(container, {
+      layout: { background: { color: 'transparent' }, textColor: '#7f8d9a', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 },
+      grid: { vertLines: { color: 'rgba(24,34,48,0.6)' }, horzLines: { color: 'rgba(24,34,48,0.6)' } },
+      rightPriceScale: { borderColor: 'rgba(24,34,48,0.9)' },
+      timeScale: { borderColor: 'rgba(24,34,48,0.9)', timeVisible: true, secondsVisible: false },
+      crosshair: { mode: 1 },
+    });
+    const candles = chart.addCandlestickSeries({
+      upColor: '#22c55e', downColor: '#ef4444',
+      borderUpColor: '#22c55e', borderDownColor: '#ef4444',
+      wickUpColor: '#22c55e', wickDownColor: '#ef4444',
+    });
+
+    // Fetch OKX 15m klines (public, CORS-friendly, not geo-blocked for user)
+    const sources = [
+      { name: 'OKX', url: 'https://www.okx.com/api/v5/market/candles?instId=ETH-USDT&bar=15m&limit=100',
+        parse: d => (d.data||[]).map(r => ({ time: Math.floor(parseInt(r[0])/1000), open:+r[1], high:+r[2], low:+r[3], close:+r[4] })).reverse() },
+      { name: 'CoinGecko', url: 'https://api.coingecko.com/api/v3/coins/ethereum/ohlc?vs_currency=usd&days=1',
+        parse: d => (d||[]).map(r => ({ time: Math.floor(r[0]/1000), open:+r[1], high:+r[2], low:+r[3], close:+r[4] })) },
+    ];
+
+    async function loadCandles() {
+      for (const src of sources) {
+        try {
+          const r = await fetch(src.url);
+          if (!r.ok) continue;
+          const j = await r.json();
+          const rows = src.parse(j);
+          if (rows && rows.length > 0) {
+            console.log('[kline] via', src.name, '·', rows.length, 'candles');
+            return rows;
+          }
+        } catch(e) { console.warn('[kline]', src.name, 'failed:', e.message); }
       }
-    } else {
-      el.classList.add('up');
-      arrow.textContent = '▲';
+      return null;
     }
-    _lastEthPrice = p;
-  }
-  fetchEthPrice();
-  setInterval(fetchEthPrice, 10000);
 
+    // Demo buy/sell markers · 相对最新 K 线的偏移量, 演示 Agent 策略行为
+    function buildMarkers(rows) {
+      if (!rows || rows.length < 30) return [];
+      const n = rows.length;
+      const M = [];
+      // 挑几根 K 线作为示范信号 (在低点开多 / 高点开空 / 平仓)
+      const p = (idx) => rows[Math.max(0, Math.min(n-1, idx))];
+      const openLong  = (idx, label) => ({ time: p(idx).time, position:'belowBar', color:'#22c55e', shape:'arrowUp',   text: label });
+      const closeWin  = (idx, pnl)   => ({ time: p(idx).time, position:'aboveBar', color:'#f5b942', shape:'circle',    text: '平 ' + pnl });
+      const openShort = (idx, label) => ({ time: p(idx).time, position:'aboveBar', color:'#ef4444', shape:'arrowDown', text: label });
+      const stopLoss  = (idx, pnl)   => ({ time: p(idx).time, position:'belowBar', color:'#7f8d9a', shape:'circle',    text: 'SL ' + pnl });
 
+      // 找几个局部极值放标记 (简单启发, 不是真信号)
+      let minIdx = 0, maxIdx = 0;
+      for (let i = 5; i < n - 5; i++) {
+        if (rows[i].low  < rows[minIdx].low)  minIdx = i;
+        if (rows[i].high > rows[maxIdx].high) maxIdx = i;
+      }
+      // 只加 4-5 个标记, 不要太密
+      M.push(openLong(Math.max(0, minIdx - 3), '策略3 多 $' + rows[Math.max(0,minIdx-3)].close.toFixed(0)));
+      M.push(closeWin(Math.max(0, minIdx + 8), '+$' + (Math.abs(rows[Math.max(0,minIdx+8)].close - rows[Math.max(0,minIdx-3)].close) * 3.9).toFixed(0)));
+      M.push(openShort(maxIdx, '策略2 空 $' + rows[maxIdx].close.toFixed(0)));
+      if (maxIdx + 6 < n) {
+        M.push(closeWin(maxIdx + 6, '+$' + (Math.abs(rows[maxIdx].close - rows[maxIdx+6].close) * 3.9).toFixed(0)));
+      }
+      // 按 time 升序
+      M.sort((a,b)=>a.time-b.time);
+      return M;
+    }
 
+    loadCandles().then(rows => {
+      if (!rows) {
+        loading.textContent = '数据源暂不可用';
+        return;
+      }
+      candles.setData(rows);
+      candles.setMarkers(buildMarkers(rows));
+      chart.timeScale().fitContent();
+      loading.classList.add('hidden');
+    });
+
+    // Refresh every 60s
+    setInterval(async () => {
+      const rows = await loadCandles();
+      if (rows) {
+        candles.setData(rows);
+        candles.setMarkers(buildMarkers(rows));
+      }
+    }, 60000);
+
+    // Resize
+    new ResizeObserver(entries => {
+      for (const e of entries) chart.applyOptions({ width: e.contentRect.width, height: e.contentRect.height });
+    }).observe(container);
+  })();
 </script>
 </body>
 </html>

@@ -1196,35 +1196,39 @@
   track.innerHTML = rows.join('') + rows.join('');
 </script>
 <script src="i18n.js">
-  // ═══ Live ETH price ═══
+  // ═══ Live ETH price · 5-API fallback ═══
   let _lastEthPrice = null;
-  async function tryGecko() {
-    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
-    const d = await r.json();
-    return parseFloat(d.ethereum.usd);
-  }
-  async function tryOkx() {
-    const r = await fetch('https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT');
-    const d = await r.json();
-    return parseFloat(d.data[0].last);
-  }
+  const _apis = [
+    { name: 'OKX', url: 'https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT', parse: d => parseFloat(d.data[0].last) },
+    { name: 'Coinbase', url: 'https://api.coinbase.com/v2/prices/ETH-USD/spot', parse: d => parseFloat(d.data.amount) },
+    { name: 'CoinGecko', url: 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd', parse: d => parseFloat(d.ethereum.usd) },
+    { name: 'BinanceUS', url: 'https://api.binance.us/api/v3/ticker/price?symbol=ETHUSDT', parse: d => parseFloat(d.price) },
+    { name: 'Kraken', url: 'https://api.kraken.com/0/public/Ticker?pair=ETHUSDT', parse: d => parseFloat(d.result.ETHUSDT.c[0]) }
+  ];
   async function fetchEthPrice() {
     const el = document.getElementById('ethPrice');
     const val = document.getElementById('ethPriceVal');
     const arrow = document.getElementById('ethArrow');
     if (!el || !val) return;
     let p = null;
-    try { p = await tryGecko(); } catch(e) {}
-    if (p === null || isNaN(p)) {
-      try { p = await tryOkx(); } catch(e) {}
+    for (const api of _apis) {
+      try {
+        const r = await fetch(api.url);
+        if (!r.ok) continue;
+        const d = await r.json();
+        const parsed = api.parse(d);
+        if (parsed && !isNaN(parsed) && parsed > 0) { p = parsed; console.log('[ETH price] via ' + api.name + ': $' + p); break; }
+      } catch(e) { console.warn('[ETH price] ' + api.name + ' failed:', e.message); }
     }
     if (p === null || isNaN(p)) {
-      val.textContent = '$----';
+      val.textContent = '$--';
       arrow.textContent = '';
       el.classList.remove('up','down');
+      el.title = 'Price feed unavailable';
       return;
     }
     val.textContent = '$' + p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    el.title = '';
     if (_lastEthPrice !== null) {
       const diff = p - _lastEthPrice;
       if (Math.abs(diff) >= 0.01) {
@@ -1241,6 +1245,7 @@
   }
   fetchEthPrice();
   setInterval(fetchEthPrice, 10000);
+
 
 
 </script>

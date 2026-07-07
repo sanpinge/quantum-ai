@@ -11,10 +11,10 @@ const I18N = {
   'hero.model':     { zh: 'MODEL · V2.3', en: 'MODEL · V2.3', ja: 'モデル · V2.3', ko: '모델 · V2.3' },
   'hero.title':     { zh: 'AI 智能体自主交易中', en: 'AI Agent Trading Autonomously', ja: 'AI エージェント自律取引中', ko: 'AI 에이전트 자율 트레이딩 중' },
   'hero.desc':      {
-    zh: '量子 AI 是基于日内交易的复合型策略, 多种维度的顶级策略融合的自主交易智能体, 覆盖 ETH 永续合约, 神经决策 全天候扫描 无人工干预。资金池链上透明, 每笔交易实时同步。',
-    en: 'Quantum AI is a composite intraday strategy — an autonomous trading agent fusing multi-dimensional top strategies, covering ETH perpetuals. Neural decisioning, 24/7 scanning, zero human intervention. On-chain transparent fund pool, real-time trade sync.',
-    ja: '量子 AI は日中取引ベースの複合型戦略。多次元のトップ戦略を融合した自律型トレーディングエージェントで, ETH 永久先物対応。神経判断, 全天候スキャン, 人手介入なし。ファンドプールはオンチェーンで透明, 全取引がリアルタイム同期。',
-    ko: '퀀텀 AI는 데이 트레이딩 기반의 복합형 전략입니다. 다차원 최상급 전략을 융합한 자율 트레이딩 에이전트로, ETH 무기한 선물을 커버합니다. 신경 판단, 24/7 스캔, 무인 개입. 펀드풀은 온체인에서 투명하며 모든 거래가 실시간 동기화됩니다.'
+    zh: '神经决策 · 全天候扫描 · 链上透明',
+    en: 'Neural decisioning · 24/7 · on-chain',
+    ja: '神経判断 · 24/7 · オンチェーン透明',
+    ko: '신경 판단 · 24/7 · 온체인 투명'
   },
 
   // ── Pools ──
@@ -56,10 +56,10 @@ const I18N = {
   'lev.title':      { zh: '智能动态杠杆 · AI 自适应', en: 'Dynamic Leverage · AI Adaptive', ja: '動的レバレッジ · AI 適応', ko: '동적 레버리지 · AI 적응' },
   'lev.subtitle':   { zh: '按资金规模自动调节 · 大资金越保守', en: 'Auto-adjusts by capital · larger = safer', ja: '資金規模で自動調整 · 大資金ほど保守的', ko: '자본 규모별 자동 조절 · 클수록 보수적' },
   'lev.intro':      {
-    zh: '量子 AI 根据用户资金体量, 自动匹配最优杠杆。小资金冲刺, 大资金稳守 — 单笔风险始终锁定在净值 3-10% 内。',
-    en: 'Quantum AI auto-matches optimal leverage by user capital. Small caps sprint, large caps guard — single-trade risk always locked within 3-10% of equity.',
-    ja: '量子 AI はユーザーの資金規模に応じて最適レバレッジを自動調整。小資金は加速, 大資金は防御 — 単一取引リスクは常に純資産 3-10% 内。',
-    ko: '퀀텀 AI는 사용자 자본 규모에 따라 최적 레버리지를 자동 매칭. 소액은 가속, 대액은 방어 — 단일 거래 리스크는 항상 순자산 3-10% 이내.'
+    zh: '小资金冲刺 · 大资金稳守 · 单笔风险 3-10%',
+    en: 'Small = sprint · Large = guard · Risk 3-10%',
+    ja: '小資金は加速 · 大資金は防御 · リスク 3-10%',
+    ko: '소액 가속 · 대액 방어 · 리스크 3-10%'
   },
   'lev.tag.sprint': { zh: '冲刺', en: 'Sprint', ja: 'スプリント', ko: '스프린트' },
   'lev.tag.safe':   { zh: '稳守', en: 'Safe', ja: '防御', ko: '방어' },
@@ -82,6 +82,7 @@ const I18N = {
   // ── K-line page ──
   'kline.title':    { zh: 'ETH-USDT · 15m · Agent 交易标记', en: 'ETH-USDT · 15m · Agent Markers', ja: 'ETH-USDT · 15m · エージェントマーカー', ko: 'ETH-USDT · 15m · 에이전트 마커' },
   'kline.note':     { zh: '最近 30 根 · 自主决策', en: 'Last 30 bars · autonomous', ja: '直近 30 本 · 自律決定', ko: '최근 30봉 · 자율 결정' },
+  'kline.demo':     { zh: '示例信号 · 仅供演示', en: 'Sample signals · demo only', ja: 'サンプルシグナル · デモ', ko: '예시 신호 · 데모' },
   'kline.pos':      { zh: '当前持仓', en: 'Open Position', ja: '現在のポジション', ko: '현재 포지션' },
   'kline.pos.entry':{ zh: '入场价', en: 'Entry', ja: 'エントリー', ko: '진입가' },
   'kline.pos.sl':   { zh: '止损价', en: 'Stop Loss', ja: 'ストップロス', ko: '손절가' },

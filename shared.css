@@ -2,13 +2,13 @@
    量子 AI · QUANTUM AGENT · Shared Styles
    ═══════════════════════════════════════ */
 :root {
-  --bg: #06090e;
-  --bg-2: #0a0f16;
-  --panel: #0f141c;
-  --panel-2: #131a24;
-  --panel-3: #1a2330;
-  --border: #1b2634;
-  --border-strong: #263344;
+  --bg: #050b15;
+  --bg-2: #08111e;
+  --panel: #0d1624;
+  --panel-2: #111c2c;
+  --panel-3: #172438;
+  --border: #1c2b40;
+  --border-strong: #26384f;
   --text: #c5cfda;
   --text-warm: #ecdcb8;
   --text-muted: #8ea0b0;
@@ -264,6 +264,30 @@ a { color: inherit; text-decoration: none; }
   font-size: 11px;
   letter-spacing: 0.14em;
 }
+
+/* 通用 SVG 图标 · 章节标题 / 卡片装饰 */
+.sec-icon {
+  display: inline-flex; align-items:center; justify-content:center;
+  width: 20px; height: 20px;
+  color: var(--tech);
+  flex-shrink: 0;
+  margin-right: 3px;
+}
+.sec-icon svg { width: 100%; height: 100%; }
+.sec-icon.amber { color: var(--accent); }
+
+.sec-head h2, .feed-head h3 {
+  display: inline-flex; align-items: center; gap: 9px;
+}
+.sec-head h2::before, .feed-head h3::before {
+  content: '';
+  display: inline-block;
+  width: 3px; height: 14px;
+  background: var(--tech);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(94,234,212,0.5);
+}
+.feed-head { display: flex; align-items: center; justify-content: space-between; }
 
 /* TradingView Single Ticker widget · 顶部实时价格 */
 .tv-ticker {

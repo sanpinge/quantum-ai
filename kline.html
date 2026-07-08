@@ -352,32 +352,47 @@
       return null;
     }
 
-    // Demo buy/sell markers · 相对最新 K 线的偏移量, 演示 Agent 策略行为
+    // Demo buy/sell markers · 铁律: 开多平价必 > 入价, 开空平价必 < 入价
     function buildMarkers(rows) {
       if (!rows || rows.length < 30) return [];
       const n = rows.length;
       const M = [];
-      // 挑几根 K 线作为示范信号 (在低点开多 / 高点开空 / 平仓)
       const p = (idx) => rows[Math.max(0, Math.min(n-1, idx))];
       const openLong  = (idx, label) => ({ time: p(idx).time, position:'belowBar', color:'#22c55e', shape:'arrowUp',   text: label });
-      const closeWin  = (idx, pnl)   => ({ time: p(idx).time, position:'aboveBar', color:'#f5b942', shape:'circle',    text: '平 ' + pnl });
       const openShort = (idx, label) => ({ time: p(idx).time, position:'aboveBar', color:'#ef4444', shape:'arrowDown', text: label });
-      const stopLoss  = (idx, pnl)   => ({ time: p(idx).time, position:'belowBar', color:'#7f8d9a', shape:'circle',    text: 'SL ' + pnl });
+      const closeWin  = (idx, pnl)   => ({ time: p(idx).time, position:'aboveBar', color:'#f5b942', shape:'circle',    text: '平 +$' + pnl });
 
-      // 找几个局部极值放标记 (简单启发, 不是真信号)
+      // 找局部低点 / 高点
       let minIdx = 0, maxIdx = 0;
       for (let i = 5; i < n - 5; i++) {
         if (rows[i].low  < rows[minIdx].low)  minIdx = i;
         if (rows[i].high > rows[maxIdx].high) maxIdx = i;
       }
-      // 只加 4-5 个标记, 不要太密
-      M.push(openLong(Math.max(0, minIdx - 3), '策略3 多 $' + rows[Math.max(0,minIdx-3)].close.toFixed(0)));
-      M.push(closeWin(Math.max(0, minIdx + 8), '+$' + (Math.abs(rows[Math.max(0,minIdx+8)].close - rows[Math.max(0,minIdx-3)].close) * 3.9).toFixed(0)));
-      M.push(openShort(maxIdx, '策略2 空 $' + rows[maxIdx].close.toFixed(0)));
-      if (maxIdx + 6 < n) {
-        M.push(closeWin(maxIdx + 6, '+$' + (Math.abs(rows[maxIdx].close - rows[maxIdx+6].close) * 3.9).toFixed(0)));
+
+      // ── 多单: 入=真低点收盘, 平=之后第一根 close > 入 的 K
+      const longEntry = rows[minIdx].close;
+      let longExitIdx = -1;
+      for (let i = minIdx + 1; i < n; i++) {
+        if (rows[i].close > longEntry) { longExitIdx = i; break; }
       }
-      // 按 time 升序
+      if (longExitIdx > 0) {
+        M.push(openLong(minIdx, '策略3 多 $' + longEntry.toFixed(0)));
+        const pnl = ((rows[longExitIdx].close - longEntry) * 3.9).toFixed(0);
+        M.push(closeWin(longExitIdx, pnl));
+      }
+
+      // ── 空单: 入=真高点收盘, 平=之后第一根 close < 入 的 K
+      const shortEntry = rows[maxIdx].close;
+      let shortExitIdx = -1;
+      for (let i = maxIdx + 1; i < n; i++) {
+        if (rows[i].close < shortEntry) { shortExitIdx = i; break; }
+      }
+      if (shortExitIdx > 0) {
+        M.push(openShort(maxIdx, '策略2 空 $' + shortEntry.toFixed(0)));
+        const pnl = ((shortEntry - rows[shortExitIdx].close) * 3.9).toFixed(0);
+        M.push(closeWin(shortExitIdx, pnl));
+      }
+
       M.sort((a,b)=>a.time-b.time);
       return M;
     }

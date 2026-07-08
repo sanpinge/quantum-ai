@@ -369,11 +369,15 @@
         if (rows[i].high > rows[maxIdx].high) maxIdx = i;
       }
 
-      // ── 多单: 入=真低点收盘, 平=之后第一根 close > 入 的 K
+      // 价差门槛 $31 - $54 随机, 多空各自独立
+      const longMinDiff = 31 + Math.random() * 23;
+      const shortMinDiff = 31 + Math.random() * 23;
+
+      // ── 多单: 入=真低点收盘, 平=之后第一根 close ≥ 入 + longMinDiff 的 K
       const longEntry = rows[minIdx].close;
       let longExitIdx = -1;
       for (let i = minIdx + 1; i < n; i++) {
-        if (rows[i].close > longEntry) { longExitIdx = i; break; }
+        if (rows[i].close - longEntry >= longMinDiff) { longExitIdx = i; break; }
       }
       if (longExitIdx > 0) {
         M.push(openLong(minIdx, '策略3 多 $' + longEntry.toFixed(0)));
@@ -381,11 +385,11 @@
         M.push(closeWin(longExitIdx, pnl));
       }
 
-      // ── 空单: 入=真高点收盘, 平=之后第一根 close < 入 的 K
+      // ── 空单: 入=真高点收盘, 平=之后第一根 入 - close ≥ shortMinDiff 的 K
       const shortEntry = rows[maxIdx].close;
       let shortExitIdx = -1;
       for (let i = maxIdx + 1; i < n; i++) {
-        if (rows[i].close < shortEntry) { shortExitIdx = i; break; }
+        if (shortEntry - rows[i].close >= shortMinDiff) { shortExitIdx = i; break; }
       }
       if (shortExitIdx > 0) {
         M.push(openShort(maxIdx, '策略2 空 $' + shortEntry.toFixed(0)));

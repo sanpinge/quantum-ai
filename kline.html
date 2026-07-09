@@ -145,12 +145,14 @@
     <div class="card kline-card">
       <div class="sec-head">
         <h2 data-i18n="kline.title">ETH-USDT · 15m · Agent 交易标记</h2>
-        <span class="note demo-note" data-i18n="kline.demo">示例信号 · 仅供演示</span>
+        <span class="note" data-i18n="kline.live">实时策略信号 · V2 引擎</span>
+      </div>
+      <div id="liveStatus" style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;padding:10px 14px;margin-bottom:10px;background:var(--panel-2);border:1px solid var(--border);border-left:3px solid var(--tech);border-radius:4px;font-size:12.5px;font-family:var(--font-mono)">
+        <span style="color:var(--text-dim)">◇ 连接策略信号中...</span>
       </div>
       <div class="kline-wrap">
         <div id="lwChart" style="width:100%; height:100%;"></div>
         <div id="chartLoading" class="chart-loading">加载 K 线数据…</div>
-        <div class="demo-watermark">DEMO</div>
         <!-- Static fallback SVG (shows only when live data fails to load, e.g. mobile network blocked) -->
         <div id="klineFallback" class="kline-fallback" style="display:none;">
           <svg viewBox="0 0 640 500" preserveAspectRatio="none" style="width:100%; height:100%; display:block;">
@@ -222,38 +224,21 @@
       <div class="card pos-card">
         <div class="pos-title">
           <h3 data-i18n="kline.pos">当前持仓</h3>
-          <span class="status">ACTIVE</span>
+          <span class="status" id="posStatus">LIVE</span>
         </div>
-        <span class="pos-badge S">空 SHORT · 策略 3</span>
-        <div class="pos-grid">
-          <div class="pos-item"><div class="k" data-i18n="kline.pos.entry">入场价</div><div class="v">$1,793.20</div></div>
-          <div class="pos-item"><div class="k" data-i18n="kline.pos.sl">止损价</div><div class="v">$1,806.50</div></div>
-          <div class="pos-item"><div class="k" data-i18n="kline.pos.qty">数量</div><div class="v">3.90 ETH</div></div>
-          <div class="pos-item"><div class="k" data-i18n="kline.pos.lev">杠杆</div><div class="v">125x</div></div>
-          <div class="pos-item"><div class="k" data-i18n="kline.pos.upnl">浮盈</div><div class="v up">+$21.86</div></div>
-          <div class="pos-item"><div class="k" data-i18n="kline.pos.hold">持仓时长</div><div class="v">04h 15m</div></div>
+        <div id="posContent">
+          <span class="pos-badge S" style="opacity:.5">连接中…</span>
         </div>
       </div>
 
       <!-- RECENT SIGNALS -->
       <div class="card sigs-card">
         <div class="sig-title">
-          <h3 data-i18n="kline.sigs">最近 3 个信号</h3>
+          <h3 data-i18n="kline.sigs">最近信号</h3>
           <span class="note">Agent 决策</span>
         </div>
-        <div class="sig-list">
-          <div class="sig-row">
-            <div class="r1"><span class="strat">策略 3</span><span class="conf-badge">置信度 <b>87%</b></span></div>
-            <div class="r2"><span class="dir S">空</span><span class="time">02:54:02</span></div>
-          </div>
-          <div class="sig-row">
-            <div class="r1"><span class="strat">策略 4</span><span class="conf-badge">置信度 <b>62%</b></span></div>
-            <div class="r2"><span class="dir L">多</span><span class="time">02:28:56</span></div>
-          </div>
-          <div class="sig-row">
-            <div class="r1"><span class="strat">策略 2</span><span class="conf-badge">置信度 <b>91%</b></span></div>
-            <div class="r2"><span class="dir L">多</span><span class="time">01:12:37</span></div>
-          </div>
+        <div class="sig-list" id="sigList">
+          <div class="sig-row" style="opacity:.5"><div class="r2"><span>连接策略信号中…</span></div></div>
         </div>
       </div>
     </div>
@@ -352,77 +337,175 @@
       return null;
     }
 
-    // Demo buy/sell markers · 铁律: 开多平价必 > 入价, 开空平价必 < 入价
-    function buildMarkers(rows) {
-      if (!rows || rows.length < 30) return [];
-      const n = rows.length;
+    // ── 真实信号 (5003 V2 dry_run · 云端 Worker · 需解锁) ──
+    window._liveSignal = null;
+    window._signalMasked = true;
+    async function fetchLiveSignal() {
+      try {
+        const url = (window.QuantumSignal ? QuantumSignal.signalUrl() : 'https://quantum-scanner.bard999.workers.dev/api/signal');
+        const r = await fetch(url);
+        const j = await r.json();
+        if (j.ok && j.live) {
+          window._liveSignal = j.live;
+          window._signalMasked = !j.unlocked;
+          return j.live;
+        }
+      } catch (e) { console.warn('[signal]', e.message); }
+      return null;
+    }
+    // 解锁成功后立即刷新
+    window.addEventListener('quantum-unlocked', async () => {
+      await fetchLiveSignal();
+      const rows = await loadCandles();
+      if (rows) { candles.setData(rows); candles.setMarkers(buildRealMarkers(rows)); }
+      renderLivePanel();
+    });
+
+    // 把某个 ms 时间戳吸附到可视 K 线范围内最近的一根 (超出范围返回 null)
+    function snapTime(tsMs, rows) {
+      if (!rows || !rows.length) return null;
+      const tSec = Math.floor(tsMs / 1000);
+      const first = rows[0].time, last = rows[rows.length - 1].time;
+      if (tSec < first - 900 || tSec > last + 900) return null;   // 容忍 15m
+      let best = rows[0].time, bd = Infinity;
+      for (const r of rows) { const d = Math.abs(r.time - tSec); if (d < bd) { bd = d; best = r.time; } }
+      return best;
+    }
+
+    // 用 5003 真实成交历史 + 当前持仓 生成 markers (只画落在可视窗口内的)
+    function buildRealMarkers(rows) {
+      const sig = window._liveSignal;
+      if (!sig || !rows || !rows.length) return [];
       const M = [];
-      const p = (idx) => rows[Math.max(0, Math.min(n-1, idx))];
-      const openLong  = (idx, label) => ({ time: p(idx).time, position:'belowBar', color:'#22c55e', shape:'arrowUp',   text: label });
-      const openShort = (idx, label) => ({ time: p(idx).time, position:'aboveBar', color:'#ef4444', shape:'arrowDown', text: label });
-      const closeWin  = (idx, pnl)   => ({ time: p(idx).time, position:'aboveBar', color:'#f5b942', shape:'circle',    text: '平 +$' + pnl });
+      const seen = new Set();
+      const push = (tSec, m) => { const k = tSec + m.shape + m.position; if (!seen.has(k)) { seen.add(k); M.push({ time: tSec, ...m }); } };
 
-      // 找局部低点 / 高点
-      let minIdx = 0, maxIdx = 0;
-      for (let i = 5; i < n - 5; i++) {
-        if (rows[i].low  < rows[minIdx].low)  minIdx = i;
-        if (rows[i].high > rows[maxIdx].high) maxIdx = i;
+      const masked = window._signalMasked;
+      for (const t of (sig.history || [])) {
+        const isLong = (t.dir || '').indexOf('l') === 0;
+        // 开仓
+        const ot = snapTime(t.open_ts, rows);
+        if (ot) {
+          const price = masked ? '$****' : ('$' + Math.round(t.entry));
+          push(ot, isLong
+            ? { position:'belowBar', color:'#22c55e', shape:'arrowUp',   text:'多 '+price+(t.source?' · '+t.source:'') }
+            : { position:'aboveBar', color:'#ef4444', shape:'arrowDown', text:'空 '+price+(t.source?' · '+t.source:'') });
+        }
+        // 平仓
+        const ct = snapTime(t.close_ts, rows);
+        if (ct) {
+          const win = masked ? t.win : ((t.pnl || 0) >= 0);
+          const amt = masked ? '***' : ('$' + Math.abs(Math.round(t.pnl)));
+          push(ct, win
+            ? { position:'aboveBar', color:'#f5b942', shape:'circle', text:'平 +'+amt }
+            : { position:'belowBar', color:'#7f8d9a', shape:'circle', text:'止损 -'+amt });
+        }
       }
-
-      // 价差门槛 $31 - $54 随机, 多空各自独立
-      const longMinDiff = 31 + Math.random() * 23;
-      const shortMinDiff = 31 + Math.random() * 23;
-
-      // ── 多单: 入=真低点收盘, 平=之后第一根 close ≥ 入 + longMinDiff 的 K
-      const longEntry = rows[minIdx].close;
-      let longExitIdx = -1;
-      for (let i = minIdx + 1; i < n; i++) {
-        if (rows[i].close - longEntry >= longMinDiff) { longExitIdx = i; break; }
+      // 当前持仓 (未平)
+      if (sig.pos) {
+        const p = sig.pos;
+        const isLong = (p.direction || '').indexOf('l') === 0;
+        const ot = snapTime(p.open_ts_ms || sig.last_signal_ms, rows);
+        const price = masked ? '$****' : ('$' + Math.round(p.entry_price));
+        if (ot) push(ot, isLong
+          ? { position:'belowBar', color:'#22c55e', shape:'arrowUp',   text:'▶ 持多 '+price }
+          : { position:'aboveBar', color:'#ef4444', shape:'arrowDown', text:'▶ 持空 '+price });
       }
-      if (longExitIdx > 0) {
-        M.push(openLong(minIdx, '策略3 多 $' + longEntry.toFixed(0)));
-        const pnl = ((rows[longExitIdx].close - longEntry) * 3.9).toFixed(0);
-        M.push(closeWin(longExitIdx, pnl));
-      }
-
-      // ── 空单: 入=真高点收盘, 平=之后第一根 入 - close ≥ shortMinDiff 的 K
-      const shortEntry = rows[maxIdx].close;
-      let shortExitIdx = -1;
-      for (let i = maxIdx + 1; i < n; i++) {
-        if (shortEntry - rows[i].close >= shortMinDiff) { shortExitIdx = i; break; }
-      }
-      if (shortExitIdx > 0) {
-        M.push(openShort(maxIdx, '策略2 空 $' + shortEntry.toFixed(0)));
-        const pnl = ((shortEntry - rows[shortExitIdx].close) * 3.9).toFixed(0);
-        M.push(closeWin(shortExitIdx, pnl));
-      }
-
       M.sort((a,b)=>a.time-b.time);
       return M;
     }
 
     let liveOK = false;
-    loadCandles().then(rows => {
-      if (!rows) {
-        showFallback();
-        return;
-      }
+    Promise.all([loadCandles(), fetchLiveSignal()]).then(([rows]) => {
+      if (!rows) { showFallback(); return; }
       liveOK = true;
       candles.setData(rows);
-      candles.setMarkers(buildMarkers(rows));
+      candles.setMarkers(buildRealMarkers(rows));
       chart.timeScale().fitContent();
       loading.classList.add('hidden');
+      renderLivePanel();
     });
 
-    // Refresh every 60s (skip if we're on fallback already, no point retrying)
+    // 刷新: K 线 + 信号 每 30s
     setInterval(async () => {
       if (!liveOK) return;
-      const rows = await loadCandles();
-      if (rows) {
-        candles.setData(rows);
-        candles.setMarkers(buildMarkers(rows));
+      const [rows] = await Promise.all([loadCandles(), fetchLiveSignal()]);
+      if (rows) { candles.setData(rows); candles.setMarkers(buildRealMarkers(rows)); }
+      renderLivePanel();
+    }, 30000);
+
+    // 实时状态小面板 (图上方)
+    function renderLivePanel() {
+      const el = document.getElementById('liveStatus');
+      if (!el) return;
+      const sig = window._liveSignal;
+      if (!sig) { el.innerHTML = '<span style="color:var(--text-dim)">◇ 连接策略信号中...</span>'; return; }
+      const masked = window._signalMasked;
+      const pos = sig.pos;
+      const posStr = pos
+        ? `<b style="color:${(pos.direction||'').indexOf('l')===0?'#22c55e':'#ef4444'}">${(pos.direction||'').indexOf('l')===0?'持多':'持空'} ${masked?'$****':'$'+Math.round(pos.entry_price)}</b>${masked?'':' · SL $'+Math.round(pos.sl_price)}`
+        : '<span style="color:var(--text-muted)">空仓 · 等待信号</span>';
+      const wr = sig.trades_n ? Math.round(sig.trades_w / sig.trades_n * 100) : 0;
+      const ago = sig.updated_at ? Math.round((Date.now() - sig.updated_at) / 1000) : null;
+      const fresh = ago !== null && ago < 120;
+      const unlockBtn = masked
+        ? `<button onclick="QuantumSignal.unlockSignals()" style="margin-left:auto;padding:5px 14px;background:var(--accent);border:none;color:#0a0f14;font-size:11.5px;font-weight:600;border-radius:3px;cursor:pointer">🔓 解锁真信号</button>`
+        : `<span style="margin-left:auto;color:var(--tech);font-size:11px">✓ 已解锁</span>`;
+      el.innerHTML = `
+        <span style="color:${fresh?'#22c55e':'#f5b942'}">● ${fresh?'实时':'延迟'}</span>
+        <span>当前 ${posStr}</span>
+        <span style="color:var(--text-dim)">权益 <b style="color:var(--text)">$${(sig.equity||0).toLocaleString()}</b></span>
+        <span style="color:var(--text-dim)">${sig.trades_n||0} 单 · 胜率 <b style="color:var(--text)">${wr}%</b></span>
+        ${unlockBtn}`;
+
+      // 右侧持仓卡
+      const pc = document.getElementById('posContent');
+      const ps = document.getElementById('posStatus');
+      if (pc) {
+        if (pos) {
+          const isL = (pos.direction||'').indexOf('l')===0;
+          const holdMs = Date.now() - (pos.open_ts_ms || sig.last_signal_ms || Date.now());
+          const hh = Math.floor(holdMs/3600000), mm = Math.floor((holdMs%3600000)/60000);
+          if (ps) { ps.textContent = 'ACTIVE'; ps.style.color = '#22c55e'; }
+          const mv = (v) => masked ? '<span style="color:var(--accent)">$****</span>' : v;
+          pc.innerHTML = `
+            <span class="pos-badge ${isL?'L':'S'}">${isL?'多 LONG':'空 SHORT'} · ${pos.source||'V2'}</span>
+            <div class="pos-grid">
+              <div class="pos-item"><div class="k">入场价</div><div class="v">${mv('$'+(pos.entry_price||0).toLocaleString())}</div></div>
+              <div class="pos-item"><div class="k">止损价</div><div class="v">${mv('$'+(pos.sl_price||0).toLocaleString())}</div></div>
+              <div class="pos-item"><div class="k">数量</div><div class="v">${masked?'****':(pos.qty||0).toFixed(2)+' ETH'}</div></div>
+              <div class="pos-item"><div class="k">杠杆</div><div class="v">${pos.lev||10}x</div></div>
+              <div class="pos-item"><div class="k">保证金</div><div class="v">${masked?'****':'$'+Math.round(pos.margin||0).toLocaleString()}</div></div>
+              <div class="pos-item"><div class="k">持仓时长</div><div class="v">${hh}h ${mm}m</div></div>
+            </div>
+            ${masked?'<button onclick="QuantumSignal.unlockSignals()" style="width:100%;margin-top:12px;padding:9px;background:var(--accent);border:none;color:#0a0f14;font-size:12px;font-weight:600;border-radius:4px;cursor:pointer">🔓 充值 $1000 解锁完整信号</button>':''}`;
+        } else {
+          if (ps) { ps.textContent = 'IDLE'; ps.style.color = 'var(--text-dim)'; }
+          pc.innerHTML = `<span class="pos-badge" style="background:var(--panel-2);color:var(--text-muted)">空仓 · 等待信号</span>
+            <div style="color:var(--text-dim);font-size:12px;margin-top:10px;line-height:1.6">V2 引擎 24/7 扫描 15m K 线<br>共振/双击穿/交叉 触发即入场</div>
+            ${masked?'<button onclick="QuantumSignal.unlockSignals()" style="width:100%;margin-top:12px;padding:9px;background:var(--accent);border:none;color:#0a0f14;font-size:12px;font-weight:600;border-radius:4px;cursor:pointer">🔓 充值 $1000 解锁完整信号</button>':''}`;
+        }
       }
-    }, 60000);
+
+      // 右侧最近信号列表 (用 history 倒序, 最多 5 条)
+      const sl = document.getElementById('sigList');
+      if (sl) {
+        const hist = (sig.history || []).slice(-5).reverse();
+        if (hist.length) {
+          sl.innerHTML = hist.map(t => {
+            const isL = (t.dir||'').indexOf('l')===0;
+            const win = masked ? t.win : ((t.pnl||0) >= 0);
+            const d = new Date(t.close_ts);
+            const tm = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+            const amt = masked ? (win?'盈':'亏') : ((win?'+':'')+'$'+Math.round(t.pnl));
+            return `<div class="sig-row">
+              <div class="r1"><span class="strat">${t.source||'V2'}</span><span class="conf-badge" style="color:${win?'#22c55e':'#7f8d9a'}">${amt}</span></div>
+              <div class="r2"><span class="dir ${isL?'L':'S'}">${isL?'多':'空'}</span><span class="time">${tm} · ${t.reason||''}</span></div>
+            </div>`;
+          }).join('');
+        }
+      }
+    }
 
     // Resize
     new ResizeObserver(entries => {

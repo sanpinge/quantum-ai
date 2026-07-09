@@ -461,6 +461,29 @@
     </div>
   </section>
 
+  <!-- 实时策略状态 · 5003 V2 引擎 -->
+  <section class="card" id="liveStratCard" style="margin-bottom:24px;padding:18px 22px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="liveDot" style="width:9px;height:9px;border-radius:50%;background:#7f8d9a;display:inline-block"></span>
+        <h3 style="margin:0;font-size:14px;letter-spacing:.02em" data-i18n="live.title">实时策略引擎 · V2</h3>
+      </div>
+      <span id="liveUpdated" style="font-size:11px;color:var(--text-dim);font-family:var(--font-mono)">连接中…</span>
+    </div>
+    <div id="liveGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+      <div class="live-cell"><div class="lc-k" data-i18n="live.pos">当前持仓</div><div class="lc-v" id="lvPos">—</div></div>
+      <div class="live-cell"><div class="lc-k" data-i18n="live.equity">实时权益</div><div class="lc-v" id="lvEq">—</div></div>
+      <div class="live-cell"><div class="lc-k" data-i18n="live.wr">胜率</div><div class="lc-v" id="lvWr">—</div></div>
+      <div class="live-cell"><div class="lc-k" data-i18n="live.trades">累计信号</div><div class="lc-v" id="lvTrades">—</div></div>
+    </div>
+  </section>
+  <style>
+    .live-cell { background:var(--panel-2); border:1px solid var(--border); border-radius:4px; padding:12px 14px; }
+    .live-cell .lc-k { font-size:11px; color:var(--text-dim); letter-spacing:.04em; margin-bottom:6px; }
+    .live-cell .lc-v { font-size:17px; font-weight:600; font-family:var(--font-mono); color:var(--text); }
+    @media (max-width:640px){ #liveGrid { grid-template-columns:repeat(2,1fr); } }
+  </style>
+
   <!-- Agent panel · 简化独立卡片 -->
   <section class="card agent-card-v2">
     <div class="agent-head">
@@ -795,6 +818,49 @@
 <script src="i18n.js"></script>
 
 <script>
+  // ── 实时策略状态 (5003 V2 · 云端 Worker · 门控) ──
+  (function liveStrategy() {
+    async function tick() {
+      let live = null, masked = true;
+      try {
+        const url = window.QuantumSignal ? QuantumSignal.signalUrl() : 'https://quantum-scanner.bard999.workers.dev/api/signal';
+        const r = await fetch(url); const j = await r.json();
+        if (j.ok) { live = j.live; masked = !j.unlocked; }
+      } catch(e){}
+      const dot = document.getElementById('liveDot');
+      const upd = document.getElementById('liveUpdated');
+      if (!live) { if (upd) upd.textContent = '信号离线'; return; }
+      const ago = live.updated_at ? Math.round((Date.now() - live.updated_at)/1000) : 999;
+      const fresh = ago < 120;
+      if (dot) dot.style.background = fresh ? '#22c55e' : '#f5b942';
+      if (upd) {
+        upd.innerHTML = (fresh ? ('实时 · '+ago+'s前') : ('延迟 '+Math.round(ago/60)+'分钟'))
+          + (masked
+              ? ' · <a onclick="QuantumSignal.unlockSignals()" style="color:var(--accent);cursor:pointer;text-decoration:underline">🔓解锁真信号</a>'
+              : ' · <span style="color:var(--tech)">✓已解锁</span>');
+      }
+      const pos = live.pos;
+      const lvPos = document.getElementById('lvPos');
+      if (lvPos) {
+        if (pos) {
+          const isL = (pos.direction||'').indexOf('l')===0;
+          const price = masked ? '<span style="color:var(--accent)">$****</span>' : ('$'+Math.round(pos.entry_price).toLocaleString());
+          lvPos.innerHTML = `<span style="color:${isL?'#22c55e':'#ef4444'}">${isL?'持多':'持空'}</span> ${price}`;
+        } else { lvPos.innerHTML = '<span style="color:var(--text-muted)">空仓</span>'; }
+      }
+      const lvEq = document.getElementById('lvEq');
+      if (lvEq) lvEq.textContent = '$' + (live.equity||0).toLocaleString();
+      const wr = live.trades_n ? Math.round(live.trades_w/live.trades_n*100) : 0;
+      const lvWr = document.getElementById('lvWr');
+      if (lvWr) lvWr.innerHTML = wr + '% <span style="font-size:12px;color:var(--text-dim)">('+(live.trades_w||0)+'/'+(live.trades_n||0)+')</span>';
+      const lvTrades = document.getElementById('lvTrades');
+      if (lvTrades) lvTrades.textContent = (live.trades_n||0) + ' 单';
+    }
+    tick();
+    setInterval(tick, 30000);
+    window.addEventListener('quantum-unlocked', tick);
+  })();
+
   (function ethPriceLive() {
     let last = null;
     const sources = [

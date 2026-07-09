@@ -627,6 +627,7 @@ table.hist { width: 100%; border-collapse: collapse; font-family: var(--font-mon
     <button class="tab-btn" data-tab="dist-tab">收益发放</button>
     <button class="tab-btn" data-tab="team-tab">团队分成</button>
     <button class="tab-btn" data-tab="users-tab">用户资产</button>
+    <button class="tab-btn" data-tab="referral-tab">推荐网络</button>
     <button class="tab-btn" data-tab="chat-tab">
       客服消息
       <span class="tab-badge" id="chatBadge" style="display:none">0</span>
@@ -1158,6 +1159,37 @@ table.hist { width: 100%; border-collapse: collapse; font-family: var(--font-mon
     </div>
   </div>
 
+  <!-- REFERRAL TAB · 推荐网络 -->
+  <div class="tab-panel" id="referral-tab">
+    <div class="withdraw-notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v6M12 15v6M5 12h14M7 5l5 4 5-4M7 19l5-4 5 4"/></svg>
+      <div>
+        <div class="wn-title">◇ 推荐网络 · 根码 VIP888</div>
+        <div class="wn-desc">客户连钱包/充值时自动上报推荐关系到云端。根码 <b style="color:var(--accent)">VIP888</b> 是金字塔顶, 没带推荐码的客户默认挂到根码下。团队分成按此树计算。</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px; padding:0; overflow:hidden">
+      <div style="display:grid; grid-template-columns:1fr 1fr; min-height:400px">
+        <!-- 左: 树 -->
+        <div style="border-right:1px solid var(--border); padding:16px; overflow:auto; max-height:600px">
+          <div style="font-size:13px; font-weight:600; margin-bottom:12px; color:var(--text)">推荐树</div>
+          <div id="refTree" style="font-family:var(--font-mono); font-size:12px; line-height:1.8"></div>
+        </div>
+        <!-- 右: 明细表 -->
+        <div style="padding:16px; overflow:auto; max-height:600px">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px">
+            <span style="font-size:13px; font-weight:600; color:var(--text)">节点明细</span>
+            <span style="font-size:11px; color:var(--text-dim)">共 <b id="refCount">0</b> 人 · 总入金 <b id="refTotalDep" style="color:var(--accent)">$0</b></span>
+          </div>
+          <table class="hist" style="font-size:11.5px">
+            <thead><tr><th>钱包</th><th>推荐码</th><th>上级</th><th class="r">入金</th></tr></thead>
+            <tbody id="refBody"><tr><td colspan="4" class="empty">暂无推荐数据</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- CHAT TAB · 客服消息 -->
   <div class="tab-panel" id="chat-tab">
     <div class="withdraw-notice">
@@ -1210,6 +1242,7 @@ table.hist { width: 100%; border-collapse: collapse; font-family: var(--font-mon
       renderAddrPool();
       renderChatUsers();
       fetchChainDeposits();
+      fetchReferrals();
     } else {
       authErr.textContent = '密码错误';
       pwdInput.value = '';
@@ -1223,6 +1256,8 @@ table.hist { width: 100%; border-collapse: collapse; font-family: var(--font-mon
     loadData();
     renderAddrPool();
     renderChatUsers();
+    fetchChainDeposits();
+    fetchReferrals();
   }
   setTimeout(() => pwdInput.focus(), 100);
 
@@ -1386,6 +1421,65 @@ table.hist { width: 100%; border-collapse: collapse; font-family: var(--font-mon
       }
     }
   }, 3000);
+
+  // ═══ 推荐网络 ═══
+  const ROOT_CODE = 'VIP888';
+  async function fetchReferrals() {
+    try {
+      const r = await fetch(CHAIN_API + '/api/referrals');
+      const j = await r.json();
+      if (j.ok) renderReferrals(j.referrals || []);
+    } catch (e) {
+      const t = document.getElementById('refTree');
+      if (t) t.innerHTML = '<span style="color:#ef4444">云端无响应</span>';
+    }
+  }
+  function renderReferrals(list) {
+    const short = a => a ? a.slice(0, 6) + '···' + a.slice(-4) : '—';
+    // 明细表
+    const body = document.getElementById('refBody');
+    const cnt = document.getElementById('refCount');
+    const totEl = document.getElementById('refTotalDep');
+    if (cnt) cnt.textContent = list.length;
+    let totalDep = 0;
+    list.forEach(n => totalDep += (n.deposited || 0));
+    if (totEl) totEl.textContent = '$' + Math.round(totalDep).toLocaleString();
+    if (body) {
+      body.innerHTML = list.length ? list
+        .sort((a, b) => (b.deposited || 0) - (a.deposited || 0))
+        .map(n => `<tr>
+          <td style="font-family:var(--font-mono)" title="${n.address}">${short(n.address)}</td>
+          <td style="font-family:var(--font-mono);color:var(--accent)">${n.myCode || '—'}</td>
+          <td style="font-family:var(--font-mono);color:var(--tech)">${n.refCode || '—'}</td>
+          <td class="r">$${Math.round(n.deposited || 0).toLocaleString()}</td>
+        </tr>`).join('') : '<tr><td colspan="4" class="empty">暂无推荐数据</td></tr>';
+    }
+    // 树: 按 refCode(上级码) 分组, 从 VIP888 递归展开
+    const byUpline = {};   // uplineCode → [nodes]
+    for (const n of list) {
+      const up = (n.refCode || '').toUpperCase();
+      (byUpline[up] = byUpline[up] || []).push(n);
+    }
+    const treeEl = document.getElementById('refTree');
+    if (treeEl) {
+      const seen = new Set();
+      function build(code, depth) {
+        if (depth > 8) return '';   // 防环
+        const children = byUpline[code] || [];
+        return children.map(n => {
+          if (seen.has(n.address)) return '';
+          seen.add(n.address);
+          const pad = '　'.repeat(depth);
+          const dep = n.deposited ? ' <span style="color:var(--accent)">$' + Math.round(n.deposited).toLocaleString() + '</span>' : '';
+          const kids = n.myCode ? build(n.myCode.toUpperCase(), depth + 1) : '';
+          return `<div>${pad}${depth > 0 ? '└ ' : ''}<span style="color:var(--tech)">${short(n.address)}</span> <span style="color:var(--text-dim)">[${n.myCode || '?'}]</span>${dep}</div>${kids}`;
+        }).join('');
+      }
+      const rootChildren = build(ROOT_CODE, 1);
+      treeEl.innerHTML = `<div><span style="color:var(--accent);font-weight:600">◆ ${ROOT_CODE}</span> <span style="color:var(--text-dim)">(根 · 官方)</span></div>` +
+        (rootChildren || '<div style="color:var(--text-dim);margin-top:8px">　暂无下级</div>');
+    }
+  }
 
   function renderAddrPool() {
     const grid = document.getElementById('addrPoolGrid');

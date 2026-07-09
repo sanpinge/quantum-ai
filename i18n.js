@@ -405,6 +405,7 @@ async function unlockSignals() {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const address = (accounts[0] || '').toLowerCase();
     if (!address) return false;
+    reportReferral(address);   // 顺便上报推荐关系
     const ts = Date.now();
     const msg = 'Quantum AI · unlock live signals · ' + ts;
     const sig = await window.ethereum.request({ method: 'personal_sign', params: [msg, address] });
@@ -430,7 +431,20 @@ function lockSignals() {
   localStorage.removeItem('quantumUnlock');
   window.dispatchEvent(new Event('quantum-unlocked'));
 }
-window.QuantumSignal = { signalUrl, getUnlockAuth, unlockSignals, lockSignals };
+// 上报推荐关系到后端 (客户拿到钱包地址时调, 让 admin 能看树)
+async function reportReferral(address) {
+  try {
+    const refCode = (localStorage.getItem('quantumReferrer') || '').toUpperCase();
+    const myCode = (localStorage.getItem('quantumMyRefCode') || '').toUpperCase();
+    if (!address || !refCode) return;
+    await fetch('https://quantum-scanner.bard999.workers.dev/api/referral/bind', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address: address.toLowerCase(), myCode, refCode }),
+    });
+  } catch (e) { console.warn('reportReferral:', e); }
+}
+window.QuantumSignal = { signalUrl, getUnlockAuth, unlockSignals, lockSignals, reportReferral };
 
 // ═══ 货币 · CNY / USD / JPY / KRW ═══ (汇率写死, 1 USD = X)
 const CCY_LIST = ['USD', 'CNY', 'JPY', 'KRW'];

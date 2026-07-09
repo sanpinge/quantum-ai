@@ -1089,6 +1089,26 @@
   Object.defineProperty(MOCK_ASSET, 'total', {
     get() { return this.deposit + this.stratReward + this.teamReward - this.withdrawn; }
   });
+
+  // ═══ 从云端账本读真实余额 (钱包已解锁签名时) ═══
+  async function fetchMyLedger() {
+    const auth = (window.QuantumSignal && QuantumSignal.getUnlockAuth) ? QuantumSignal.getUnlockAuth() : null;
+    if (!auth) return;   // 未解锁 → 保持 mock/空
+    try {
+      const url = 'https://quantum-scanner.bard999.workers.dev/api/ledger?address=' + auth.address + '&ts=' + auth.ts + '&sig=' + auth.sig;
+      const r = await fetch(url);
+      const j = await r.json();
+      if (j.ok && j.ledger) {
+        MOCK_ASSET.address = auth.address;
+        MOCK_ASSET.deposit = j.ledger.deposited || 0;
+        MOCK_ASSET.stratReward = j.ledger.stratReward || 0;
+        MOCK_ASSET.teamReward = j.ledger.teamReward || 0;
+        renderAsset(MOCK_ASSET);
+      }
+    } catch (e) { console.warn('ledger:', e); }
+  }
+  window.addEventListener('quantum-unlocked', fetchMyLedger);
+  setTimeout(fetchMyLedger, 500);
   function renderAsset(a) {
     const connected = a.address && a.address.length >= 10;
     const wsEl = document.getElementById('walletStatus');
@@ -1215,13 +1235,30 @@
     });
   }
 
+  function _copyText(text) {
+    // 优先 clipboard API, 失败(http/局域网)降级到 execCommand
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(() => true).catch(() => _copyFallback(text));
+    }
+    return Promise.resolve(_copyFallback(text));
+  }
+  function _copyFallback(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
   function copyRef() {
     const url = document.getElementById('myRefCode').dataset.url;
     if (!url) return;
-    navigator.clipboard.writeText(url).then(() => {
+    _copyText(url).then(ok => {
       showModal({
-        title: t('cp.title'),
-        body: `<div class="row"><span class="k">${t('cp.link')}</span><span class="v mono-sm">${url}</span></div><div class="note">${t('cp.note')}</div>`,
+        title: ok ? t('cp.title') : '请手动复制',
+        body: `<div class="row"><span class="k">${t('cp.link')}</span></div><div style="font-family:var(--font-mono);font-size:12px;word-break:break-all;color:var(--tech);padding:8px 0">${url}</div><div class="note">${ok ? t('cp.note') : '当前环境不支持自动复制, 请长按上方链接手动复制'}</div>`,
         actions: [{label: t('modal.gotit'), kind: 'primary'}]
       });
     });

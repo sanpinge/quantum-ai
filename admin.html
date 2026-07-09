@@ -912,6 +912,32 @@ table.hist { width: 100%; border-collapse: collapse; font-family: var(--font-mon
         </div>
       </div>
 
+      <!-- 极差分成核对 + 自动发放到余额 -->
+      <div class="card" style="grid-column:1/-1; padding:20px 22px">
+        <div class="head" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px">
+          <h3 style="margin:0">◇ 分成核对表 · 直推 5% + 团队极差</h3>
+          <span style="font-size:11px; color:var(--text-dim)">静态算好 → 肉眼核对 → 确认自动发到余额</span>
+        </div>
+        <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:14px; font-size:12px">
+          <span>受益 <b id="cpUsers" style="color:var(--text)">0</b> 人</span>
+          <span>策略收益 <b id="cpStrat" style="color:var(--accent)">$0</b></span>
+          <span>直推 <b id="cpDirect" style="color:var(--tech)">$0</b></span>
+          <span>极差 <b id="cpDiff" style="color:var(--tech)">$0</b></span>
+          <span>团队合计 <b id="cpTeam" style="color:var(--accent)">$0</b></span>
+          <span>总发放 <b id="cpTotal" style="color:var(--up)">$0</b></span>
+        </div>
+        <div class="hist-viewport" style="max-height:320px">
+          <table class="hist" style="font-size:11.5px">
+            <thead><tr><th>钱包</th><th>码</th><th class="r">入金</th><th class="r">策略收益</th><th class="r">团队入金</th><th class="r">VIP</th><th class="r">直推</th><th class="r">极差</th><th class="r">合计发放</th></tr></thead>
+            <tbody id="cpBody"><tr><td colspan="9" class="empty">点"重新计算"生成核对表</td></tr></tbody>
+          </table>
+        </div>
+        <div class="form-btn-row" style="margin-top:14px">
+          <button class="form-btn secondary" onclick="computeAndRenderCP()">重新计算核对表</button>
+          <button class="form-btn" onclick="executeAutoDist()">✓ 核对无误 · 确认自动发放到余额</button>
+        </div>
+      </div>
+
       <div class="card hist-card">
         <div class="head">
           <h3>批量发放历史</h3>
@@ -1424,15 +1450,93 @@ table.hist { width: 100%; border-collapse: collapse; font-family: var(--font-mon
 
   // ═══ 推荐网络 ═══
   const ROOT_CODE = 'VIP888';
+  let _refData = [];   // 云端推荐节点 [{address, myCode, refCode, deposited}]
   async function fetchReferrals() {
     try {
       const r = await fetch(CHAIN_API + '/api/referrals');
       const j = await r.json();
-      if (j.ok) renderReferrals(j.referrals || []);
+      if (j.ok) { _refData = j.referrals || []; renderReferrals(_refData); }
     } catch (e) {
       const t = document.getElementById('refTree');
       if (t) t.innerHTML = '<span style="color:#ef4444">云端无响应</span>';
     }
+  }
+
+  // ═══ 分成引擎: 直推 5% + 团队极差 (按 VIP 档位) ═══
+  const PUSH_TOKEN = '8S6MEd99dgdCeX3k36g0qQL2DyGQAC0r';
+  function _vipRate(teamDeposit, smallestBranch) {
+    for (const t of VIP_TIERS) {
+      if (teamDeposit >= t.minTotal && (smallestBranch || 0) >= t.minBranch) return t.ratio;
+    }
+    return 0;
+  }
+  // 计算完整分成方案. ratio=本月策略分配比例. 返回 {rows, totals}
+  function computeCompPlan(ratio) {
+    const nodes = _refData.filter(n => n.myCode);   // 有自己码的才是树节点
+    const byCode = {};   // myCode → node
+    const byAddr = {};
+    nodes.forEach(n => { byCode[n.myCode.toUpperCase()] = n; byAddr[n.address.toLowerCase()] = n; });
+    // 每个节点自己策略收益 = 入金 × ratio (先不卡 30 天, 简化 v1)
+    const strat = {};
+    nodes.forEach(n => { strat[n.address] = (n.deposited || 0) * ratio; });
+    // 子树集合: childrenByCode[code] = [子节点]
+    const childrenOf = {};
+    nodes.forEach(n => {
+      const up = (n.refCode || '').toUpperCase();
+      (childrenOf[up] = childrenOf[up] || []).push(n);
+    });
+    // 递归算每个节点的团队总入金 (含自己下面所有人, 不含自己)
+    const teamDep = {}, teamStrat = {};
+    function subtree(code, depth, seen) {
+      if (depth > 12) return { dep: 0, strat: 0 };
+      let dep = 0, st = 0;
+      for (const c of (childrenOf[code] || [])) {
+        if (seen.has(c.address)) continue;
+        seen.add(c.address);
+        dep += (c.deposited || 0);
+        st += strat[c.address] || 0;
+        const sub = subtree((c.myCode || '').toUpperCase(), depth + 1, seen);
+        dep += sub.dep; st += sub.strat;
+      }
+      return { dep, strat: st };
+    }
+    nodes.forEach(n => {
+      const s = subtree((n.myCode || '').toUpperCase(), 0, new Set());
+      teamDep[n.address] = s.dep; teamStrat[n.address] = s.strat;
+    });
+    // 直推 5%: 每人策略收益的 5% 给直接上级
+    const direct = {}, diff = {};
+    nodes.forEach(n => { direct[n.address] = 0; diff[n.address] = 0; });
+    nodes.forEach(n => {
+      const up = byCode[(n.refCode || '').toUpperCase()];
+      if (up) direct[up.address] += (strat[n.address] || 0) * 0.05;
+    });
+    // 团队极差: 每人策略收益沿上级链, 每级按 (自己VIP率 − 已付最高率) 拿
+    nodes.forEach(n => {
+      let cur = byCode[(n.refCode || '').toUpperCase()];
+      let paid = 0, guard = 0;
+      while (cur && guard++ < 12) {
+        const rate = _vipRate(teamDep[cur.address] || 0, 0);
+        const d = Math.max(0, rate - paid);
+        if (d > 0) diff[cur.address] += (strat[n.address] || 0) * d;
+        paid = Math.max(paid, rate);
+        cur = byCode[(cur.refCode || '').toUpperCase()];
+      }
+    });
+    const rows = nodes.map(n => {
+      const team = direct[n.address] + diff[n.address];
+      return {
+        address: n.address, myCode: n.myCode, refCode: n.refCode,
+        deposited: n.deposited || 0, strat: strat[n.address] || 0,
+        teamDep: teamDep[n.address] || 0, vip: _vipRate(teamDep[n.address] || 0, 0),
+        direct: direct[n.address], diff: diff[n.address], team,
+        total: (strat[n.address] || 0) + team,
+      };
+    }).filter(r => r.total > 0);
+    const totals = rows.reduce((a, r) => {
+      a.strat += r.strat; a.direct += r.direct; a.diff += r.diff; a.team += r.team; a.total += r.total; return a;
+    }, { strat: 0, direct: 0, diff: 0, team: 0, total: 0, users: rows.length });
+    return { rows, totals };
   }
   function renderReferrals(list) {
     const short = a => a ? a.slice(0, 6) + '···' + a.slice(-4) : '—';
@@ -1479,6 +1583,69 @@ table.hist { width: 100%; border-collapse: collapse; font-family: var(--font-mon
       treeEl.innerHTML = `<div><span style="color:var(--accent);font-weight:600">◆ ${ROOT_CODE}</span> <span style="color:var(--text-dim)">(根 · 官方)</span></div>` +
         (rootChildren || '<div style="color:var(--text-dim);margin-top:8px">　暂无下级</div>');
     }
+  }
+
+  let _cpPlan = null;   // 最近算好的分成方案 (待发放)
+  function computeAndRenderCP() {
+    const ratio = parseFloat(document.getElementById('distRatio').value) / 100;
+    if (!ratio || ratio <= 0 || ratio > 1) { toast('比例无效', 'err'); return; }
+    if (!_refData.length) { toast('暂无推荐数据 (等客户上报)', 'err'); return; }
+    _cpPlan = computeCompPlan(ratio);
+    const { rows, totals } = _cpPlan;
+    const short = a => a.slice(0, 6) + '···' + a.slice(-4);
+    const m = n => '$' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    document.getElementById('cpUsers').textContent = totals.users;
+    document.getElementById('cpStrat').textContent = m(totals.strat);
+    document.getElementById('cpDirect').textContent = m(totals.direct);
+    document.getElementById('cpDiff').textContent = m(totals.diff);
+    document.getElementById('cpTeam').textContent = m(totals.team);
+    document.getElementById('cpTotal').textContent = m(totals.total);
+    const body = document.getElementById('cpBody');
+    body.innerHTML = rows.length ? rows
+      .sort((a, b) => b.total - a.total)
+      .map(r => `<tr>
+        <td style="font-family:var(--font-mono)" title="${r.address}">${short(r.address)}</td>
+        <td style="font-family:var(--font-mono);color:var(--accent)">${r.myCode}</td>
+        <td class="r">${m(r.deposited)}</td>
+        <td class="r" style="color:var(--accent)">${m(r.strat)}</td>
+        <td class="r" style="color:var(--text-dim)">${m(r.teamDep)}</td>
+        <td class="r">${(r.vip*100).toFixed(0)}%</td>
+        <td class="r" style="color:var(--tech)">${m(r.direct)}</td>
+        <td class="r" style="color:var(--tech)">${m(r.diff)}</td>
+        <td class="r" style="color:var(--up)"><b>${m(r.total)}</b></td>
+      </tr>`).join('') : '<tr><td colspan="9" class="empty">无受益人</td></tr>';
+    toast('核对表已生成 · ' + totals.users + ' 人 · 合计 ' + m(totals.total), 'up');
+  }
+
+  async function executeAutoDist() {
+    if (!_cpPlan || !_cpPlan.rows.length) { toast('请先算核对表', 'err'); return; }
+    const { rows, totals } = _cpPlan;
+    const monthProfit = parseFloat(document.getElementById('distProfit').value) || 0;
+    if (monthProfit > 0 && totals.total > monthProfit) {
+      toast('超发! 总发放 > 本月盈利, 禁止', 'err'); return;
+    }
+    const m = n => '$' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    if (!confirm(`确认自动发放到余额?\n\n受益 ${totals.users} 人\n策略收益 ${m(totals.strat)}\n团队(直推+极差) ${m(totals.team)}\n总发放 ${m(totals.total)}\n\n将写入云端账本, 用户在"我的资产"即时可见。\n此操作不可撤销。`)) return;
+    const note = document.getElementById('distNote').value.trim() || '月度结算';
+    const items = rows.map(r => ({ address: r.address, strat: r.strat, team: r.team }));
+    try {
+      const resp = await fetch(CHAIN_API + '/api/distribute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Push-Token': PUSH_TOKEN },
+        body: JSON.stringify({ batchId: 'B' + Date.now(), note, ts: Date.now(), items }),
+      });
+      const j = await resp.json();
+      if (j.ok) {
+        toast('✓ 已自动发放 · ' + j.credited + ' 人入账 · 合计 ' + m(j.sumStrat + j.sumTeam), 'up');
+        // 记本地历史
+        state.distributions = state.distributions || [];
+        state.distributions.unshift({ time: new Date().toISOString().slice(0,16).replace('T',' '), ratio: (parseFloat(document.getElementById('distRatio').value)), users: j.credited, strat: j.sumStrat, team: j.sumTeam, note });
+        saveData();
+        _cpPlan = null;
+      } else {
+        toast('发放失败: ' + (j.msg || '未知'), 'err');
+      }
+    } catch (e) { toast('网络失败: ' + e.message, 'err'); }
   }
 
   function renderAddrPool() {

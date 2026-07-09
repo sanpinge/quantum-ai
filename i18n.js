@@ -120,7 +120,7 @@ const I18N = {
   'monthly.note':   { zh: '10/12 正月 · 最大月亏 -7%', en: '10/12 positive · max -7%', ja: '10/12 プラス月 · 最大 -7%', ko: '10/12 흑자 · 최대 -7%' },
 
   // ── Leverage ──
-  'lev.title':      { zh: '智能动态杠杆 · AI 自适应', en: 'Dynamic Leverage · AI Adaptive', ja: '動的レバレッジ · AI 適応', ko: '동적 레버리지 · AI 적응' },
+  'lev.title':      { zh: '智能动态仓位 · AI 自适应', en: 'Dynamic Position Size · AI Adaptive', ja: '動的ポジション · AI 適応', ko: '동적 포지션 · AI 적응' },
   'lev.subtitle':   { zh: '按资金规模自动调节 · 大资金越保守', en: 'Auto-adjusts by capital · larger = safer', ja: '資金規模で自動調整 · 大資金ほど保守的', ko: '자본 규모별 자동 조절 · 클수록 보수적' },
   'lev.intro':      {
     zh: '小资金冲刺 · 大资金稳守 · 单笔风险 3-10%',
@@ -140,7 +140,7 @@ const I18N = {
   'lev.s2.t':       { zh: 'LOSS_CAP 硬顶', en: 'LOSS_CAP Hard Limit', ja: 'LOSS_CAP ハード上限', ko: 'LOSS_CAP 하드 리밋' },
   'lev.s2.d':       { zh: '单笔亏损锁定 3-10% 净值', en: 'Single loss capped 3-10% equity', ja: '単一損失は純資産 3-10% でロック', ko: '단일 손실 순자산 3-10% 제한' },
   'lev.s3.t':       { zh: '越大越安全', en: 'Larger = Safer', ja: '大きいほど安全', ko: '클수록 안전' },
-  'lev.s3.d':       { zh: '$58K+ 强制 25x, 抗极端行情', en: '$58K+ forced 25x, extreme-market ready', ja: '$58K+ で 25x 強制, 極端相場対応', ko: '$58K+ 강제 25x, 극단 시장 대응' },
+  'lev.s3.d':       { zh: '$1000万+ 降至 3% 仓位, 抗极端行情', en: '$10M+ drops to 3% size, extreme-market ready', ja: '$1000万+ で 3% に低減, 極端相場対応', ko: '$1000만+ 3%로 하향, 극단 시장 대응' },
 
   // ── Footer ──
   'footer.sig':     { zh: '◇ 量子 AI · QUANTUM AGENT · v2.3', en: '◇ QUANTUM AI · AGENT · v2.3', ja: '◇ 量子 AI · AGENT · v2.3', ko: '◇ 퀀텀 AI · AGENT · v2.3' },

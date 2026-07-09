@@ -836,6 +836,7 @@
         <span class="sa-value" id="amount">10,000</span>
         <span class="sa-unit">USDT · BEP20</span>
       </div>
+      <div id="myReferrer" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin:10px 0;background:var(--panel-2);border:1px solid var(--border);border-radius:4px;font-size:12.5px"></div>
       <button class="cta" id="pay">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12h16m0 0-5-5m5 5-5 5"/></svg>
         <span data-i18n="deposit.cta">一键转账</span>
@@ -942,6 +943,120 @@
 </nav>
 
 <script>
+  // ═══ 10 地址收款池 · 客户按 hash 稳定分配到某一个 ═══
+  const POOL_ADDRESSES = [
+    '0x60321ABccb9DdE308599f8bf64902A0A4fEf0edb',
+    '0xA02713803670694505E4fAfb3c38579e4b9E7E15',
+    '0xF7a5663521446A0c1bF65b973fA5aD5cfF21D1De',
+    '0x95c41BA853F59F5F36917e82E2c3EF2Fc3932D26',
+    '0x3569f21A76432c4De0297bA8132dd4CF63FdEC57',
+    '0xfbE394B6A6f2d7F783D725f823aD71e7a4E2d418',
+    '0x47D36969c7cbaF9beb422B93b06795BEE10bb0f4',
+    '0xfa8795c4b498638F8063bB32240b4f7482f16d9F',
+    '0x836A84d9A68f58BC3D970C2f31Ad0D5F814D505E',
+    '0x7a5D933Dd4dFe366422747AA66EC7395DB7C6575'
+  ];
+  function _strHash(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; } return Math.abs(h); }
+  function getUserId() {
+    let uid = localStorage.getItem('quantumUid');
+    if (!uid) {
+      uid = 'u_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      localStorage.setItem('quantumUid', uid);
+    }
+    return uid;
+  }
+  function getMyPayAddr() {
+    const uid = getUserId();
+    return POOL_ADDRESSES[_strHash(uid) % POOL_ADDRESSES.length];
+  }
+
+  // ═══ 推荐码 (随机 6 位大写字母数字 · 首次访问自动生成) ═══
+  function isRefCode(s) { return /^[A-Z0-9]{4,10}$/i.test((s || '').trim()); }
+  function _genRefCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // 去掉易混 I O 0 1
+    let s = '';
+    for (let i = 0; i < 6; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+  }
+  function getMyRefCode() {
+    let c = localStorage.getItem('quantumMyRefCode');
+    if (!c) { c = _genRefCode(); localStorage.setItem('quantumMyRefCode', c); }
+    return c;
+  }
+  function getReferrer() {
+    return localStorage.getItem('quantumReferrer') || '';
+  }
+  function setReferrer(code) {
+    const a = (code || '').trim().toUpperCase();
+    if (a && !isRefCode(a)) return false;
+    if (a) localStorage.setItem('quantumReferrer', a);
+    else localStorage.removeItem('quantumReferrer');
+    renderReferrer();
+    return true;
+  }
+  function renderReferrer() {
+    const el = document.getElementById('myReferrer');
+    if (!el) return;
+    const r = getReferrer();
+    const my = getMyRefCode();
+    if (r) {
+      el.innerHTML = '<span class="k">推荐人</span><span class="v" style="font-family:var(--font-mono);font-size:14px;color:var(--tech);letter-spacing:.1em;font-weight:600">' + r + '</span><span style="margin-left:16px;color:var(--text-dim);font-size:11px">◇ 已绑定 · 不可修改</span><span style="margin-left:auto;color:var(--text-dim);font-size:11px">我的推荐码 <b style="color:var(--accent);font-family:var(--font-mono);letter-spacing:.1em">' + my + '</b></span>';
+    } else {
+      el.innerHTML = '<span class="k">推荐人</span><span class="v" style="color:var(--text-dim);font-size:12.5px">未绑定 (通过推荐链接首次进入)</span><span style="margin-left:auto;color:var(--text-dim);font-size:11px">我的推荐码 <b style="color:var(--accent);font-family:var(--font-mono);letter-spacing:.1em">' + my + '</b></span>';
+    }
+  }
+  // 页面加载: URL ?ref=XXXX 有推荐, 已绑定则忽略, 未绑定弹授权确认
+  window._pendingRef = null;
+  (function detectPendingRef() {
+    const existing = localStorage.getItem('quantumReferrer');
+    if (existing) return;   // 已绑定, 忽略 URL
+    const q = new URLSearchParams(window.location.search).get('ref');
+    if (q && isRefCode(q)) window._pendingRef = q.toUpperCase();
+  })();
+
+  function showBindGate() {
+    if (!window._pendingRef) return;
+    const ref = window._pendingRef;
+    const overlay = document.createElement('div');
+    overlay.id = 'bindGate';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(6,12,20,.88);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px';
+    overlay.innerHTML = `
+      <div style="max-width:420px;width:100%;background:var(--panel);border:1px solid var(--border-strong);border-radius:8px;padding:32px 28px;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="width:56px;height:56px;margin:0 auto 12px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--accent)" stroke-width="1.6"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+          </div>
+          <h2 style="margin:0;font-size:18px;color:var(--text);font-weight:600">授权绑定推荐关系</h2>
+        </div>
+        <div style="background:var(--panel-2);border:1px solid var(--border);padding:20px 16px;margin-bottom:18px;border-radius:4px;text-align:center">
+          <div style="color:var(--text-dim);font-size:11.5px;margin-bottom:8px;letter-spacing:.08em">推荐码</div>
+          <div style="font-family:var(--font-mono);font-size:28px;color:var(--tech);letter-spacing:.24em;font-weight:700">${ref}</div>
+        </div>
+        <div style="color:var(--text-muted);font-size:12.5px;line-height:1.6;margin-bottom:22px">
+          你被邀请加入推荐码为 <b style="color:var(--accent);font-family:var(--font-mono)">${ref}</b> 的推荐人团队。<br>
+          <span style="color:var(--text-dim)">◇ 一旦确认, 绑定永久锁定, 不可修改<br>◇ 后续入金收益部分归推荐人所有</span>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button onclick="skipBind()" style="flex:1;padding:12px 16px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-size:13px;border-radius:4px">跳过</button>
+          <button onclick="confirmBind()" style="flex:2;padding:12px 16px;background:var(--accent);border:none;color:#0a0f14;cursor:pointer;font-size:13px;font-weight:600;border-radius:4px">◇ 确认绑定</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+  function confirmBind() {
+    if (window._pendingRef) {
+      localStorage.setItem('quantumReferrer', window._pendingRef);
+      window._pendingRef = null;
+    }
+    const g = document.getElementById('bindGate'); if (g) g.remove();
+    renderReferrer();
+  }
+  function skipBind() {
+    window._pendingRef = null;
+    const g = document.getElementById('bindGate'); if (g) g.remove();
+  }
+
   function tick() {
     const d = new Date();
     document.getElementById('clock').textContent = d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0') + '  ' + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' UTC';
@@ -1019,18 +1134,14 @@
         rBtn.disabled = false;
       }
     }
-    // 邀请链接
+    // 邀请链接 (用平台生成的推荐码)
     const refBlock = document.querySelector('.ref-block');
     const el = document.getElementById('myRefCode');
-    if (connected) {
-      if (refBlock) refBlock.style.display = '';
-      const refCode = a.address.slice(-4);
-      const refUrl = 'https://sanpinge.github.io/quantum-ai/?ref=' + refCode;
-      el.textContent = refUrl;
-      el.dataset.url = refUrl;
-    } else {
-      if (refBlock) refBlock.style.display = 'none';
-    }
+    if (refBlock) refBlock.style.display = '';
+    const myCode = getMyRefCode();
+    const refUrl = window.location.origin + window.location.pathname + '?ref=' + myCode;
+    el.textContent = refUrl;
+    el.dataset.url = refUrl;
   }
   renderAsset(MOCK_ASSET);
 
@@ -1145,9 +1256,9 @@
       ]
     });
   }
-  // 邀请 ref 处理
-  const urlRef = new URLSearchParams(window.location.search).get('ref');
-  if (urlRef) console.log('邀请人: ' + urlRef);
+  // 邀请 ref 处理 (已在页面顶部 detectPendingRef 处理, 这里渲染 + 弹绑定授权)
+  renderReferrer();
+  if (window._pendingRef) showBindGate();
   document.querySelectorAll('.tier').forEach(t=>{
     t.addEventListener('click', ()=>{
       document.querySelectorAll('.tier').forEach(x=>x.classList.remove('on'));
@@ -1155,22 +1266,92 @@
       document.getElementById('amount').textContent = Number(t.dataset.amt).toLocaleString();
     });
   });
-  document.getElementById('pay').addEventListener('click', ()=>{
+  const IS_MOBILE = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  async function web3PayIfPossible(amtNum, payAddr) {
+    // TP 钱包 / MetaMask / OKX 钱包 DApp 浏览器打开时会注入 window.ethereum
+    if (!window.ethereum) return null;
+    try {
+      // 切链到 BSC (chainId 56 = 0x38)
+      try {
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }] });
+      } catch (e) {
+        if (e.code === 4902) {
+          await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{
+            chainId: '0x38', chainName: 'BNB Smart Chain',
+            nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+            rpcUrls: ['https://bsc-dataseed.binance.org/'],
+            blockExplorerUrls: ['https://bscscan.com/']
+          }]});
+        } else { throw e; }
+      }
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const from = accounts[0];
+      // encode transfer(address,uint256): 0xa9059cbb + address(padded) + amount(padded)
+      const to = payAddr.toLowerCase().replace('0x','').padStart(64,'0');
+      const amountWei = (BigInt(Math.floor(amtNum * 1e6)) * BigInt(1e12)).toString(16).padStart(64,'0');
+      const data = '0xa9059cbb' + to + amountWei;
+      const USDT_BSC = '0x55d398326f99059fF775485246999027B3197955';
+      const txHash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from, to: USDT_BSC, data }] });
+      return txHash;
+    } catch (e) {
+      console.warn('web3 pay 失败:', e);
+      return null;
+    }
+  }
+
+  document.getElementById('pay').addEventListener('click', async ()=>{
     const amt = document.getElementById('amount').textContent;
-    showModal({
-      title: t('dp.title'),
-      body: `
-        <div class="row"><span class="k">${t('dp.amount')}</span><span class="v amber">${amt} USDT</span></div>
-        <div class="row"><span class="k">${t('dp.asset')}</span><span class="v">USDT (BEP20)</span></div>
-        <div class="row"><span class="k">${t('dp.network')}</span><span class="v">BNB Smart Chain</span></div>
-        <div class="row"><span class="k">${t('dp.gas')}</span><span class="v">${t('dp.gasVal')}</span></div>
-        <div class="note">${t('dp.note')}</div>
-      `,
-      actions: [
-        {label: t('modal.cancel'), kind: 'ghost'},
-        {label: t('dp.invoke'), kind: 'primary'}
-      ]
-    });
+    const amtNum = Number(amt.replace(/,/g, ''));
+    const payAddr = getMyPayAddr();
+    const shortAddr = payAddr.slice(0, 8) + '···' + payAddr.slice(-6);
+    const ref = getReferrer();
+    const refShort = ref ? (ref.slice(0, 8) + '···' + ref.slice(-6)) : '';
+    // 提交待绑定 (客户端存储, 后端 scan 到 tx 后关联)
+    const pending = JSON.parse(localStorage.getItem('quantumPendingDeposits') || '[]');
+    pending.push({ uid: getUserId(), targetAddr: payAddr, amount: amtNum, referrer: ref, ts: Date.now() });
+    localStorage.setItem('quantumPendingDeposits', JSON.stringify(pending.slice(-50)));
+
+    // ── 优先路径 1: 有 window.ethereum (TP/MetaMask/OKX DApp 浏览器) → Web3 直调
+    if (window.ethereum) {
+      const btn = document.getElementById('pay');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span>调用钱包中...</span>';
+      const tx = await web3PayIfPossible(amtNum, payAddr);
+      btn.innerHTML = orig;
+      if (tx) {
+        showModal({
+          title: '交易已发送 ✓',
+          body: `<div class="row"><span class="k">金额</span><span class="v amber">${amt} USDT</span></div>
+                 <div class="row"><span class="k">交易哈希</span><span class="v mono-sm" style="font-family:var(--font-mono);font-size:11px;word-break:break-all">${tx}</span></div>
+                 <div class="note">链上确认后 (约 30 秒) 系统自动识别并入账</div>`,
+          actions: [{label: '知道了', kind: 'primary'}]
+        });
+        return;
+      }
+      // Web3 失败, fallback 走深链接
+    }
+
+    // ── 优先路径 2: 无 window.ethereum (普通浏览器) → 直接跳 tpoutside:// 唤起 TP 钱包 App
+    const USDT_BSC = '0x55d398326f99059fF775485246999027B3197955';
+    const tpUrl = 'tpoutside://transfer?blockchain=bsc&coin=' + USDT_BSC + '&address=' + payAddr + '&amount=' + amtNum;
+    window.location.href = tpUrl;
+    // 电脑或没装 TP 时给个提示
+    setTimeout(() => {
+      if (document.visibilityState === 'visible') {
+        showModal({
+          title: '唤起 TP 钱包失败',
+          body: `<div class="row"><span class="k">金额</span><span class="v amber">${amt} USDT</span></div>
+                 <div class="row"><span class="k">网络</span><span class="v">BNB Smart Chain (BEP20)</span></div>
+                 <div class="row"><span class="k">收款地址</span><span class="v mono-sm" style="font-family:var(--font-mono);font-size:11px;color:var(--tech);word-break:break-all">${payAddr}</span></div>
+                 <div class="note">未检测到 TP 钱包。请用手机 TP 钱包内的 DApp 浏览器打开此页面, 或手动复制地址转账。</div>`,
+          actions: [
+            {label: '复制地址', kind: 'primary', onClick: () => navigator.clipboard.writeText(payAddr)},
+            {label: '关闭', kind: 'ghost'}
+          ]
+        });
+      }
+    }, 2000);
   });
 
   // FAQ toggle

@@ -396,21 +396,37 @@ function signalUrl() {
   if (!a) return SIGNAL_BASE;
   return SIGNAL_BASE + '?address=' + a.address + '&ts=' + a.ts + '&sig=' + a.sig;
 }
-async function unlockSignals() {
+// 纯连接钱包 + 签名 (身份验证, 不卡门槛, 永远保留). 返回地址或 null
+async function connectWallet() {
   if (!window.ethereum) {
-    alert('请用 TP / MetaMask / OKX 钱包 App 内置浏览器打开本页面，再点解锁');
-    return false;
+    alert('请用 TP / MetaMask / OKX 钱包 App 内置浏览器打开本页面，再连接');
+    return null;
   }
   try {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const address = (accounts[0] || '').toLowerCase();
-    if (!address) return false;
+    if (!address) return null;
     reportReferral(address);   // 顺便上报推荐关系
     const ts = Date.now();
     const msg = 'Quantum AI · unlock live signals · ' + ts;
     const sig = await window.ethereum.request({ method: 'personal_sign', params: [msg, address] });
     localStorage.setItem('quantumUnlock', JSON.stringify({ address, sig, ts }));
-    // 立即向后端验证一次
+    window.dispatchEvent(new Event('quantum-unlocked'));
+    return address;
+  } catch (e) {
+    console.warn('connectWallet:', e);
+    return null;
+  }
+}
+// 解锁信号: 连接(如未连) + 检查是否够 $1000. 连接状态永远保留, 只是信号内容按后端门槛
+async function unlockSignals() {
+  let auth = getUnlockAuth();
+  if (!auth) {
+    const addr = await connectWallet();
+    if (!addr) return false;
+    auth = getUnlockAuth();
+  }
+  try {
     const r = await fetch(signalUrl());
     const j = await r.json();
     if (j.unlocked) {
@@ -418,14 +434,11 @@ async function unlockSignals() {
       return true;
     } else {
       const dep = Math.round(j.deposited || 0), min = j.min || 1000;
-      localStorage.removeItem('quantumUnlock');
-      alert('该钱包链上入金 $' + dep.toLocaleString() + '，需累计满 $' + min.toLocaleString() + ' 才能解锁真实信号。\n先完成充值，到账后即可解锁。');
+      alert('钱包已连接 ✓\n\n当前链上入金 $' + dep.toLocaleString() + '，需累计满 $' + min.toLocaleString() + ' 才能解锁交易信号(方向/入场价)。\n充值到账后自动解锁。\n\n你的资产余额已可在"我的资产"查看。');
+      window.dispatchEvent(new Event('quantum-unlocked'));   // 仍刷新(显示已连接+余额)
       return false;
     }
-  } catch (e) {
-    console.warn('unlock:', e);
-    return false;
-  }
+  } catch (e) { console.warn('unlock:', e); return false; }
 }
 function lockSignals() {
   localStorage.removeItem('quantumUnlock');
@@ -444,7 +457,7 @@ async function reportReferral(address) {
     });
   } catch (e) { console.warn('reportReferral:', e); }
 }
-window.QuantumSignal = { signalUrl, getUnlockAuth, unlockSignals, lockSignals, reportReferral };
+window.QuantumSignal = { signalUrl, getUnlockAuth, unlockSignals, connectWallet, lockSignals, reportReferral };
 
 // ═══ 货币 · CNY / USD / JPY / KRW ═══ (汇率写死, 1 USD = X)
 const CCY_LIST = ['USD', 'CNY', 'JPY', 'KRW'];
@@ -455,6 +468,29 @@ const CURRENCIES = {
   KRW: { symbol: '₩',  rate: 1360,  dec: 0, code: 'KRW', name: '원',          short: 'KRW ₩' },
 };
 const LANG_TO_CCY = { zh: 'CNY', en: 'USD', ja: 'JPY', ko: 'KRW' };
+
+// ═══ 按语言显示对应地区时间 ═══
+const LANG_TZ = {
+  zh: { tz: 'Asia/Shanghai',   label: '北京' },
+  en: { tz: 'America/New_York', label: 'NYC' },
+  ja: { tz: 'Asia/Tokyo',      label: '東京' },
+  ko: { tz: 'Asia/Seoul',      label: '서울' },
+};
+function updateRegionClock() {
+  const el = document.getElementById('clock');
+  if (!el) return;
+  const c = LANG_TZ[currentLang] || LANG_TZ.zh;
+  const now = new Date();
+  try {
+    const t = new Intl.DateTimeFormat('en-GB', { timeZone: c.tz, hour: '2-digit', minute: '2-digit', hour12: false }).format(now);
+    const d = new Intl.DateTimeFormat('en-CA', { timeZone: c.tz, month: '2-digit', day: '2-digit' }).format(now);
+    el.textContent = d + ' ' + t + ' ' + c.label;
+  } catch (e) {
+    el.textContent = now.toISOString().slice(5, 16).replace('T', ' ') + ' UTC';
+  }
+}
+window._regionClock = updateRegionClock;
+setInterval(updateRegionClock, 1000);
 // ccy: 'auto' 跟随语言, 或指定 'USD'/'CNY'/'JPY'/'KRW' 覆盖联动
 let currentCcy = localStorage.getItem('quantumCcy') || 'auto';
 
@@ -546,6 +582,7 @@ function applyI18n() {
   const trigL = document.querySelector('.lang-trigger .lang-current');
   if (trigL) trigL.textContent = LANG_SHORT[currentLang];
   applyMoney();   // 语言变 → 如果 ccy=auto, 货币跟着变
+  updateRegionClock();   // 语言变 → 时钟切到对应地区
 }
 function setLang(lang) {
   if (!I18N['nav.overview'][lang]) return;

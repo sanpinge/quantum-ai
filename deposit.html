@@ -773,7 +773,10 @@
   <div class="card asset-query" style="margin-bottom:24px;">
     <div class="sec-head">
       <h2 data-i18n="my.title">我的资产</h2>
-      <span class="note" id="walletStatus">已连接 · 0x···a2f5</span>
+      <span style="display:flex;align-items:center;gap:10px">
+        <span class="note" id="walletStatus">未连接钱包</span>
+        <button id="connectWalletBtn" onclick="connectAssetWallet()" style="padding:5px 14px;background:var(--accent);border:none;color:#0a0f14;font-size:11.5px;font-weight:600;border-radius:3px;cursor:pointer">连接钱包</button>
+      </span>
     </div>
     <div class="asset-result" id="assetResult">
       <div class="asset-cell primary total-hero">
@@ -1064,11 +1067,8 @@
     const g = document.getElementById('bindGate'); if (g) g.remove();
   }
 
-  function tick() {
-    const d = new Date();
-    document.getElementById('clock').textContent = d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0') + '  ' + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' UTC';
-  }
-  tick(); setInterval(tick, 30000);
+  // 时钟由 i18n.js updateRegionClock 按语言地区统一处理
+  if (window._regionClock) window._regionClock();
 
   // ═══ Asset display (auto) ═══
   // 新用户默认空账户; 真实环境从连接的钱包地址 + data.json 查
@@ -1090,16 +1090,19 @@
     get() { return this.deposit + this.stratReward + this.teamReward - this.withdrawn; }
   });
 
-  // ═══ 从云端账本读真实余额 (钱包已解锁签名时) ═══
+  // ═══ 从云端账本读真实余额 (钱包已连接签名时) ═══
   async function fetchMyLedger() {
     const auth = (window.QuantumSignal && QuantumSignal.getUnlockAuth) ? QuantumSignal.getUnlockAuth() : null;
-    if (!auth) return;   // 未解锁 → 保持 mock/空
+    if (!auth || !auth.address) return;
+    // ★ 先乐观显示"已连接"(不等网络), 保住登录态
+    MOCK_ASSET.address = auth.address;
+    renderAsset(MOCK_ASSET);
+    const b = document.getElementById('connectWalletBtn'); if (b) b.style.display = 'none';
     try {
       const url = 'https://quantum-scanner.bard999.workers.dev/api/ledger?address=' + auth.address + '&ts=' + auth.ts + '&sig=' + auth.sig;
       const r = await fetch(url);
       const j = await r.json();
       if (j.ok && j.ledger) {
-        MOCK_ASSET.address = auth.address;
         MOCK_ASSET.deposit = j.ledger.deposited || 0;
         MOCK_ASSET.stratReward = j.ledger.stratReward || 0;
         MOCK_ASSET.teamReward = j.ledger.teamReward || 0;
@@ -1108,7 +1111,33 @@
     } catch (e) { console.warn('ledger:', e); }
   }
   window.addEventListener('quantum-unlocked', fetchMyLedger);
-  setTimeout(fetchMyLedger, 500);
+  // 页面加载: 只要本地存着连接签名, 立即恢复已连接态
+  (function restoreConnection() {
+    const auth = (window.QuantumSignal && QuantumSignal.getUnlockAuth) ? QuantumSignal.getUnlockAuth() : null;
+    if (auth && auth.address) fetchMyLedger();
+  })();
+  setTimeout(fetchMyLedger, 800);
+
+  // 资产页连接钱包 (连+签名+读账本, 顺便上报推荐关系)
+  async function connectAssetWallet() {
+    const btn = document.getElementById('connectWalletBtn');
+    if (!window.ethereum) {
+      alert('请用 TP / MetaMask / OKX 钱包 App 内置浏览器打开本页面再连接');
+      return;
+    }
+    if (btn) { btn.textContent = '连接中...'; btn.disabled = true; }
+    // 纯连接(不卡 $1000 门槛), 连上就显示地址 + 读余额
+    const addr = window.QuantumSignal ? await QuantumSignal.connectWallet() : null;
+    if (btn) { btn.disabled = false; }
+    if (addr) {
+      if (btn) btn.style.display = 'none';
+      await fetchMyLedger();
+    } else {
+      if (btn) btn.textContent = '连接钱包';
+    }
+  }
+  // 已连接过就隐藏按钮
+  (function(){ const a = window.QuantumSignal && QuantumSignal.getUnlockAuth ? QuantumSignal.getUnlockAuth() : null; if (a) { const b = document.getElementById('connectWalletBtn'); if (b) b.style.display='none'; } })();
   function renderAsset(a) {
     const connected = a.address && a.address.length >= 10;
     const wsEl = document.getElementById('walletStatus');

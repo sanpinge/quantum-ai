@@ -1840,20 +1840,32 @@ table.hist { width: 100%; border-collapse: collapse; font-family: var(--font-mon
     clearForm();
     toast('已发放 ' + amt.toLocaleString() + ' USDT · 收益池 -' + amt.toLocaleString(), 'up');
   }
-  function submitDeposit() {
+  async function submitDeposit() {
     const addr = document.getElementById('depAddr').value.trim();
     const amt = parseFloat(document.getElementById('depAmt').value);
     const note = document.getElementById('depNote').value.trim();
-    if (!addr || addr.length < 8) return toast('地址格式错误', 'err');
+    if (!/^0x[0-9a-fA-F]{40}$/.test(addr)) return toast('地址格式错误 (要 0x + 40 位)', 'err');
     if (!amt || amt <= 0) return toast('金额无效', 'err');
     const shortAddr = addr.replace(/^0x/, '').slice(-4);
     const now = new Date();
     const time = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    state.deposits.push({ time, addr: shortAddr, fullAddr: addr, amount: amt, note });
+    state.deposits.push({ time, addr: shortAddr, fullAddr: addr, amount: amt, note, manual: true });
     state.fundPool += amt;
     saveData();
+    // ★ 同步到云端 (让用户端资产页 + 解锁门槛认这笔钱)
+    try {
+      const r = await fetch(CHAIN_API + '/api/manual_deposit', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Push-Token': PUSH_TOKEN },
+        body: JSON.stringify({ address: addr.toLowerCase(), amount: amt, note, ts: Date.now() }),
+      });
+      const j = await r.json();
+      if (j.ok) toast('已登记 ' + amt.toLocaleString() + ' USDT · 已同步云端 · 用户端可见', 'up');
+      else toast('本地已登记, 云端同步失败: ' + (j.msg || ''), 'err');
+    } catch (e) {
+      toast('本地已登记, 云端同步失败(网络)', 'err');
+    }
     clearDepForm();
-    toast('已登记入金 ' + amt.toLocaleString() + ' USDT · 基金池 +' + amt.toLocaleString(), 'up');
+    renderAddrPool();
   }
   function clearForm() {
     document.getElementById('addrInput').value = '';

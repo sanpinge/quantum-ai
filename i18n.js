@@ -376,6 +376,89 @@ const LANG_CODE  = { zh: 'ZH', en: 'EN', ja: 'JP', ko: 'KR' };
 const LANG_SHORT = { zh: '中文', en: 'EN', ja: '日本語', ko: '한국어' };
 let currentLang = localStorage.getItem('quantumLang') || 'zh';
 
+// ═══ 货币 · CNY / USD / JPY / KRW ═══ (汇率写死, 1 USD = X)
+const CCY_LIST = ['USD', 'CNY', 'JPY', 'KRW'];
+const CURRENCIES = {
+  USD: { symbol: '$',  rate: 1,     dec: 2, code: 'USD', name: 'US Dollar',   short: 'USD $' },
+  CNY: { symbol: '¥',  rate: 7,     dec: 0, code: 'CNY', name: '人民币',      short: 'CNY ¥' },
+  JPY: { symbol: '¥',  rate: 155,   dec: 0, code: 'JPY', name: '日本円',      short: 'JPY ¥' },
+  KRW: { symbol: '₩',  rate: 1360,  dec: 0, code: 'KRW', name: '원',          short: 'KRW ₩' },
+};
+const LANG_TO_CCY = { zh: 'CNY', en: 'USD', ja: 'JPY', ko: 'KRW' };
+// ccy: 'auto' 跟随语言, 或指定 'USD'/'CNY'/'JPY'/'KRW' 覆盖联动
+let currentCcy = localStorage.getItem('quantumCcy') || 'auto';
+
+function activeCcy() {
+  return currentCcy === 'auto' ? LANG_TO_CCY[currentLang] : currentCcy;
+}
+function formatMoney(usd, ccyCode) {
+  const c = CURRENCIES[ccyCode || activeCcy()];
+  const v = Number(usd) * c.rate;
+  return c.symbol + v.toLocaleString('en-US', { minimumFractionDigits: c.dec, maximumFractionDigits: c.dec });
+}
+function applyMoney() {
+  const cc = activeCcy();
+  document.querySelectorAll('.money[data-usd]').forEach(el => {
+    const usd = parseFloat(el.dataset.usd);
+    if (!isNaN(usd)) el.textContent = formatMoney(usd, cc);
+  });
+  // 单位标签 (USDT → USDT/CNY/JPY/KRW), 通过 data-unit-i18n=true 自动切
+  document.querySelectorAll('[data-money-unit]').forEach(el => {
+    el.textContent = CURRENCIES[cc].code;
+  });
+  const trigC = document.querySelector('.ccy-trigger .ccy-current');
+  if (trigC) trigC.textContent = currentCcy === 'auto' ? ('AUTO · ' + cc) : cc;
+}
+function setCcy(ccy) {
+  if (ccy !== 'auto' && !CURRENCIES[ccy]) return;
+  currentCcy = ccy;
+  localStorage.setItem('quantumCcy', ccy);
+  document.querySelectorAll('.ccy-btn').forEach(b => b.classList.toggle('on', b.dataset.ccy === ccy));
+  applyMoney();
+  const sw = document.querySelector('.ccy-switcher');
+  if (sw) sw.classList.remove('open');
+}
+function initCcySwitcher() {
+  const container = document.querySelector('.ccy-switcher');
+  if (!container) return;
+  const cur = activeCcy();
+  const shortLbl = currentCcy === 'auto' ? ('AUTO · ' + cur) : cur;
+  container.innerHTML = `
+    <button class="ccy-trigger" type="button">
+      <svg viewBox="0 0 24 24"><path d="M12 2v20M6 6h9a3 3 0 1 1 0 6H6M6 12h10a3 3 0 1 1 0 6H6"/></svg>
+      <span class="ccy-current">${shortLbl}</span>
+      <span class="caret"></span>
+    </button>
+    <div class="ccy-menu">
+      <button class="ccy-btn ${currentCcy === 'auto' ? 'on' : ''}" data-ccy="auto" type="button">
+        <span>跟随语言</span>
+        <span class="ccy-code">AUTO</span>
+      </button>
+      ${CCY_LIST.map(c => `
+        <button class="ccy-btn ${c === currentCcy ? 'on' : ''}" data-ccy="${c}" type="button">
+          <span>${CURRENCIES[c].name}</span>
+          <span class="ccy-code">${CURRENCIES[c].short}</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+  const trig = container.querySelector('.ccy-trigger');
+  trig.addEventListener('click', e => {
+    e.stopPropagation();
+    container.classList.toggle('open');
+  });
+  container.querySelectorAll('.ccy-btn').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      setCcy(b.dataset.ccy);
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!container.contains(e.target)) container.classList.remove('open');
+  });
+  applyMoney();
+}
+
 function t(key) {
   const v = I18N[key];
   return v ? (v[currentLang] || v.zh) : key;
@@ -392,6 +475,7 @@ function applyI18n() {
   document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : currentLang;
   const trigL = document.querySelector('.lang-trigger .lang-current');
   if (trigL) trigL.textContent = LANG_SHORT[currentLang];
+  applyMoney();   // 语言变 → 如果 ccy=auto, 货币跟着变
 }
 function setLang(lang) {
   if (!I18N['nav.overview'][lang]) return;
@@ -436,4 +520,7 @@ function initLangSwitcher() {
   });
   applyI18n();
 }
-document.addEventListener('DOMContentLoaded', initLangSwitcher);
+document.addEventListener('DOMContentLoaded', () => {
+  initLangSwitcher();
+  initCcySwitcher();
+});

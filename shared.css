@@ -477,3 +477,25 @@ a { color: inherit; text-decoration: none; }
   .brand-text .sub { display: none; }
   .footer { flex-direction: column; align-items: flex-start; gap: 8px; font-size: 10px; }
 }
+
+/* ═══ 货币切换器 (复用 lang-switcher 样式) ═══ */
+.ccy-switcher { position: relative; display: inline-block; margin-left: 8px; }
+.ccy-trigger { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px 7px 10px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text-warm); font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.04em; cursor: pointer; transition: all .15s ease; }
+.ccy-trigger:hover { border-color: var(--accent); color: var(--accent); background: var(--panel-3); }
+.ccy-trigger svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.ccy-trigger .caret { display: inline-block; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translate(-2px, -2px); transition: transform .15s ease; margin-left: 2px; }
+.ccy-switcher.open .ccy-trigger .caret { transform: rotate(-135deg) translate(-2px, -2px); }
+.ccy-menu { position: absolute; top: calc(100% + 6px); right: 0; min-width: 170px; background: var(--panel); border: 1px solid var(--border-strong); padding: 4px; z-index: 100; opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity .18s ease, transform .18s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+.ccy-switcher.open .ccy-menu { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.ccy-btn { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: transparent; border: none; padding: 9px 12px; color: var(--text-warm); font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; text-align: left; transition: color .12s ease, background .12s ease; letter-spacing: 0.02em; }
+.ccy-btn:hover { color: var(--accent); background: var(--panel-2); }
+.ccy-btn .ccy-code { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.16em; color: var(--text-dim); text-transform: uppercase; }
+.ccy-btn.on { color: var(--accent); background: var(--accent-dim); }
+.ccy-btn.on .ccy-code { color: var(--accent); }
+.ccy-btn.on::before { content: '◇'; color: var(--accent); font-size: 10px; margin-right: 6px; vertical-align: middle; }
+@media (max-width: 600px) {
+  .ccy-switcher { margin-left: 6px; }
+  .ccy-trigger { padding: 6px 10px; font-size: 11px; }
+  .ccy-menu { min-width: 160px; right: auto; left: 0; }
+  .ccy-btn { padding: 8px 10px; font-size: 12.5px; }
+}
